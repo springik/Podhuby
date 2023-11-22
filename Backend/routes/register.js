@@ -8,14 +8,13 @@ const connection = mysql.createConnection({
     password: '',
     database: 'podhubydb'
 });
-const registerQuery = 'INSERT INTO users(email, nickname, password, pfpPath) VALUES(?, ?, ?, ?)';
+const registerQuery = 'INSERT INTO users(email, nickname, password, pfpPath) VALUES(?, ?, ?, ?);';
 
 registerRouter.post('/register', (req, res) => {
     const userEmail = req.body.userEmail;
     const userName = req.body.userName;
     const userPassword = req.body.userPassword;
     const pfpPath = '/Images/pfps/default_pfp';
-   //console.log(req.body.userName);
 
     connection.connect();
     connection.query(registerQuery, [userEmail, userName, userPassword, pfpPath], (err, result) => {
@@ -31,6 +30,7 @@ registerRouter.post('/register', (req, res) => {
             res.status(200).send('Successfully registered');
         }
     });
+    connection.end();
 });
 
 module.exports = registerRouter;

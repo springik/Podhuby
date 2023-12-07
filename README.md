@@ -5,5 +5,7 @@
 - __October__ - none
 - __November__ - ❤️
 - __December__ - 💜
+- __January__ - 🤍
+- __February__ - 💛
 
 ***Very silly***

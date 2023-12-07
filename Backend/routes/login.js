@@ -1,6 +1,6 @@
 const express = require('express');
 const loginRouter = express.Router();
-const userSessionCheck = require('../Middleware/userSessionCheck.js');
+const sessionPreparer = require('../Middleware/sessionPreparer.js');
 const isLoggedIn = require('../Middleware/isLoggedIn.js');
 
 const mysql = require('mysql');
@@ -11,8 +11,8 @@ const connection = mysql.createConnection({
     database: 'podhubydb'
 });
 const loginQuery = "SELECT email, nickname, password FROM users WHERE email = ? OR nickname = ? AND password = ?;";
-loginRouter.use(userSessionCheck);
-loginRouter.use(isLoggedIn);
+loginRouter.use(sessionPreparer);
+//loginRouter.use(isLoggedIn);
 
 loginRouter.post('/login', (req, res) => {
     const userEmail = req.body.userEmail;
@@ -21,12 +21,12 @@ loginRouter.post('/login', (req, res) => {
 
     connection.query(loginQuery, [userEmail, userName, userPassword], (err, results) => {
         if(err) {
-            res.sendStatus(500);
-            throw err;
+            res.status(500).send(err.message);
+            //throw err;
         }
         
         if(results.length == 0) {
-            res.status(500).json(req.session.user);
+            res.sendStatus(500);
         }
         else {
             req.session.user = {
@@ -34,7 +34,7 @@ loginRouter.post('/login', (req, res) => {
                 Name: userName,
                 Password: userPassword
             }
-            res.status(200).json(req.session.user);
+            res.sendStatus(200);
         }
     });
 });

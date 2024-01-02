@@ -1,5 +1,6 @@
 const express = require('express');
 const session = require('express-session');
+const cors = require('cors');
 const bodyParser = require('body-parser');
 
 const app = express();
@@ -13,9 +14,13 @@ app.use(session({
     resave: false,
     saveUninitialized: false
 }));
+const corsOptions = {
+    origin: 'http://localhost:8081',
+    optionSuccessStatus: 200
+}
 
 
 const loginRouter = require('./routes/login');
 const registerRouter = require('./routes/register');
 
-app.use('/users', loginRouter, registerRouter);
+app.use('/users', cors(), loginRouter, registerRouter);

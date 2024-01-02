@@ -1,14 +1,26 @@
 <template>
   <div>
     <label :for=name class="input-label">{{ label }}</label>
-    <input class="input-field default-state" :type="type" value="" :name=name :placeholder=placeholder>
+    <input @input="validate" v-model=input class="input-field default-state" :type="type" value="" :name=name :placeholder=placeholder>
+    <span class="err-msg"></span>
   </div>
 </template>
 
 <script>
 export default {
     name: 'InputField',
-    props: ['name', 'label', 'type', 'placeholder']
+    props: ['name', 'label', 'type', 'placeholder'],
+    data() {
+      return {
+         input: '',
+         isValid: 'false'
+      }
+    },
+    methods: {
+      validate(event) {
+         this.$emit('onValidate', this.isValid)
+      }
+    }
 }
 </script>
 

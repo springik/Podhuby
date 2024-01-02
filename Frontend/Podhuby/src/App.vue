@@ -1,10 +1,10 @@
 <template>
-<div>
+<main>
   <div class=form-container>
     <LoginForm />
     <RegisterForm />
   </div>
-</div>
+</main>
  
 </template>
 

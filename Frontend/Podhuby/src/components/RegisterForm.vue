@@ -11,7 +11,7 @@
 <script>
 import InputField from './InputField.vue'
 export default {
-    name: 'LoginForm',
+    name: 'RegisterForm',
     components: { InputField },
     methods: {
         testClick() {

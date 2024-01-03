@@ -1,24 +1,26 @@
 <template>
-  <div>
+  <div class="input-container">
     <label :for=name class="input-label">{{ label }}</label>
-    <input @input="validate" v-model=input class="input-field default-state" :type="type" value="" :name=name :placeholder=placeholder>
-    <span class="err-msg"></span>
+    <input :class="{ 'success-state': isValid, 'error-state': !isValid && inputed }" @input="validate" v-model=input class="input-field default-state" :type="type" value="" :name=name :placeholder=placeholder>
+    <span v-show="!isValid && inputed" class="err-msg"> {{ errmsg }}</span>
   </div>
 </template>
 
 <script>
 export default {
     name: 'InputField',
-    props: ['name', 'label', 'type', 'placeholder', 'pattern'],
+    props: ['name', 'label', 'type', 'placeholder', 'pattern', 'errmsg'],
     data() {
       return {
          input: '',
-         isValid: false
+         isValid: false,
+         inputed: false
       }
     },
     methods: {
       validate(event) {
-         console.log(this.pattern);
+         this.inputed = true
+         console.log(this.pattern)
          console.log(event.target.value.match(this.pattern))
          if(event.target.value.match(this.pattern) === null) {
             this.isValid = false
@@ -55,4 +57,17 @@ export default {
  input.default-state {
     box-shadow: 6px 6px 0 0 var(--accent-color);
  }
+ input.error-state {
+    box-shadow: 6px 6px 0 0 var(--on-fail);
+ }
+ input.success-state {
+    box-shadow: 6px 6px 0 0 var(--on-success);
+ }
+span.err-msg {
+   color: var(--on-fail);
+   border-bottom: 2px dotted var(--on-fail);
+}
+div.input-container {
+   margin-bottom: 10px;
+}
 </style>

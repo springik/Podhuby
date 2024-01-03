@@ -2,7 +2,7 @@
 <main>
   <div class=form-container>
     <LoginForm />
-    <RegisterForm />
+    <!-- <RegisterForm /> -->
   </div>
 </main>
  

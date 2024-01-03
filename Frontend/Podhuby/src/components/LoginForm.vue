@@ -1,9 +1,9 @@
 <template>
     <div>
         <h2 class="form-heading">Login</h2>
-        <InputField @onValidate="validationHandler" ref="email" name="userEmail" label="Email" type="email" placeholder="gmail@gmail.com" />
-        <InputField @onValidate="validationHandler" ref="name" name="userName" label="Username" type="text" placeholder="username" />
-        <InputField @onValidate="validationHandler" ref="password" name="userPassword" label="Password" type="text" placeholder="he!w1af6" />
+        <InputField @onValidate="validationHandler" ref="email" name="userEmail" label="Email" type="email" placeholder="gmail@gmail.com" :pattern="emailRegex" />
+        <InputField @onValidate="validationHandler" ref="name" name="userName" label="Username" type="text" placeholder="username" :pattern="nameRegex" />
+        <InputField @onValidate="validationHandler" ref="password" name="userPassword" label="Password" type="text" placeholder="he!w1Af6" :pattern="passwordRegex" />
         <button :disabled="isValid === 'false'" @click="login" type="submit" class="submit-btn">Login</button>
     </div>
 </template>
@@ -19,15 +19,21 @@ export default {
     },
     data() {
         return {
-            userEmail: 'me@gmail.com',
-            userName: 'me',
-            userPassword: 'password123',
+            userEmail: '',
+            userName: '',
+            userPassword: '',
             isValid: 'false',
+            emailRegex: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+            nameRegex: /^[a-zA-Z0-9_]{4,12}$/,
+            passwordRegex: /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{6,12}$/
         }
     },
     methods: {
         login() {
             console.log('clicked on login')
+            this.userEmail = this.$refs.email.value
+            this.userName = this.$refs.name.value
+            this.userPassword = this.$refs.password.value
             
             axios.post('/login', {userEmail: this.userEmail, userName: this.userName, userPassword: this.userPassword}, {headers: {'Content-Type': 'application/x-www-form-urlencoded', withCredentials: true}, baseURL: '/users'})
             .then(function(res) {
@@ -37,14 +43,17 @@ export default {
                 console.log(err)
             })
         },
-        validationHandler(isValid) {
-            this.isValid = isValid
-            if(this.$refs.email.isValid === 'true') {
+        validationHandler() {
+            console.log(this.$refs.email.isValid);
+            console.log(this.$refs.name.isValid);
+            console.log(this.$refs.password.isValid);
+            if(this.$refs.email.isValid === true && this.$refs.name.isValid === true && this.$refs.password.isValid === true) {
+                this.isValid = 'true';
                 console.log("input is valid");
             }
             else {
+                this.isValid = 'false';
                 console.log("input is invalid");
-                console.log(this.isValid);
             }
         }
     }

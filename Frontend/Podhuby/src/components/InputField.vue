@@ -9,16 +9,24 @@
 <script>
 export default {
     name: 'InputField',
-    props: ['name', 'label', 'type', 'placeholder'],
+    props: ['name', 'label', 'type', 'placeholder', 'pattern'],
     data() {
       return {
          input: '',
-         isValid: 'false'
+         isValid: false
       }
     },
     methods: {
       validate(event) {
-         this.$emit('onValidate', this.isValid)
+         console.log(this.pattern);
+         console.log(event.target.value.match(this.pattern))
+         if(event.target.value.match(this.pattern) === null) {
+            this.isValid = false
+         }
+         else {
+            this.isValid = true
+         }
+         this.$emit('onValidate')
       }
     }
 }

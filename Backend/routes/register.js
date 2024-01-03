@@ -2,7 +2,8 @@ const express = require('express');
 const registerRouter = express.Router();
 
 const mysql = require('mysql');
-const connection = mysql.createConnection({
+const pool = mysql.createPool({
+    connectionLimit: 99,
     host: 'localhost',
     user: 'root',
     password: '',
@@ -16,14 +17,14 @@ registerRouter.post('/register', (req, res) => {
     const userPassword = req.body.userPassword;
     const pfpPath = '/Images/pfps/default_pfp';
 
-    connection.query(registerQuery, [userEmail, userName, userPassword, pfpPath], (err, result) => {
+    pool.query(registerQuery, [userEmail, userName, userPassword, pfpPath], (err) => {
         if(err) {
             //handles response for general error
             res.status(500).json({ errno: err.errno, message: err.code});
             //throw err;
         }
         else {
-            res.status(200).send('Successfully registered');
+            res.status(200).json({message: 'Successfully registered'});
         }
     });
 });

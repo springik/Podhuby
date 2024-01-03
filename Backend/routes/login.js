@@ -4,13 +4,14 @@ const sessionPreparer = require('../Middleware/sessionPreparer.js');
 const isLoggedIn = require('../Middleware/isLoggedIn.js');
 
 const mysql = require('mysql');
-const connection = mysql.createConnection({
+const pool = mysql.createPool({
+    connectionLimit: 99,
     host: 'localhost',
     user: 'root',
     password: '',
     database: 'podhubydb'
 });
-const loginQuery = "SELECT email, nickname, password FROM users WHERE email = ? OR nickname = ? AND password = ?;";
+const loginQuery = "SELECT email, nickname, password FROM users WHERE email = ? AND nickname = ? AND password = ?;";
 loginRouter.use(sessionPreparer);
 //loginRouter.use(isLoggedIn);
 
@@ -19,14 +20,15 @@ loginRouter.post('/login', (req, res) => {
     const userName = req.body.userName;
     const userPassword = req.body.userPassword;
 
-    connection.query(loginQuery, [userEmail, userName, userPassword], (err, results) => {
+    pool.query(loginQuery, [userEmail, userName, userPassword], (err, results) => {
         if(err) {
-            res.status(500).send(err.message);
+            //handles response for general errors
+            res.status(500).json({errno: err.errno, message: err.code});
             //throw err;
         }
-        
-        if(results.length == 0) {
-            res.sendStatus(500);
+        else if(results.length == 0){
+                res.status(500).json({message: 'User not found'});
+            
         }
         else {
             req.session.user = {
@@ -34,8 +36,10 @@ loginRouter.post('/login', (req, res) => {
                 Name: userName,
                 Password: userPassword
             }
-            res.sendStatus(200);
+            res.status(200).json({message: 'Successfully logged in'});
         }
+        
+        
     });
 });
 

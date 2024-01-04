@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="form-container">
         <h2 class="form-heading">Login</h2>
         <InputField @onValidate="validationHandler" ref="email" name="userEmail" label="Email" type="email" placeholder="gmail@gmail.com" :pattern="emailRegex" errmsg="Enter a valid email address!" />
         <InputField @onValidate="validationHandler" ref="name" name="userName" label="Username" type="text" placeholder="username" :pattern="nameRegex" errmsg="A username can only be alphanumeric and between 4 to 16 characters!" />

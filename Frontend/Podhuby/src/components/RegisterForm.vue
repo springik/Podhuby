@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="form-container">
         <h2 class="form-heading">Register</h2>
         <InputField name="userEmail" label="Email" type="email" placeholder="gmail@gmail.com" />
         <InputField name="userName" label="Username" type="text" placeholder="username" />

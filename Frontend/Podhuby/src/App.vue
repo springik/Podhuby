@@ -1,9 +1,6 @@
 <template>
 <main>
-  <div class=form-container>
-    <LoginForm />
-    <!-- <RegisterForm /> -->
-  </div>
+  <router-view />
 </main>
  
 </template>

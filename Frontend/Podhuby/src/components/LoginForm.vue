@@ -6,12 +6,14 @@
         <InputField @onValidate="validationHandler" ref="password" name="userPassword" label="Password" type="password" placeholder="he!w1Af6" :pattern="passwordRegex" errmsg="A password can only be alphanumeric and between 6 to 22 characters!" />
         <span v-show="results.message !== ''" class="result-msg"> {{ results.message }} </span>
         <button :disabled="isValid === 'false'" @click="login" type="submit" class="submit-btn">Login</button>
+        <router-link class="form-other" to="/register">Register</router-link>
     </div>
 </template>
 
 <script>
 import InputField from './InputField.vue'
 import axios from 'axios';
+
 export default {
     name: 'LoginForm',
     components: { InputField },
@@ -94,5 +96,10 @@ span.result-msg {
     color: var(--accent-color);
     border-bottom: 1px dotted var(--accent-color);
     display: block;
+}
+a.form-other {
+    margin-left: 20px;
+    text-decoration: none;
+    border-bottom: 2px dotted var(--accent-color);
 }
 </style>

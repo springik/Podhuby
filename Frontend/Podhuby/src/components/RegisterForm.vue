@@ -3,7 +3,7 @@
         <h2 class="form-heading">Register</h2>
         <InputField @onValidate="validationHandler" ref="email" name="userEmail" label="Email" type="email" placeholder="gmail@gmail.com" :pattern="emailRegex" errmsg="Enter a valid emal address!" />
         <InputField @onValidate="validationHandler" ref="name" name="userName" label="Username" type="text" placeholder="username" :pattern="nameRegex" errmsg="A username can only be alphanumeric and between 4 to 16 characters!" />
-        <InputField @onValidate="validationHandler" ref="password" name="userPassword" label="Password" type="password" placeholder="he!w1af6" :patern="passwordRegex" errmsg="A password can only be alphanumeric and between 6 to 22 characters!" />
+        <InputField @onValidate="validationHandler" ref="password" name="userPassword" label="Password" type="password" placeholder="he!w1af6" :pattern="passwordRegex" errmsg="A password can only be alphanumeric and between 6 to 22 characters!" />
         <span v-show="results.message !== ''" class="result-msg"> {{ results.message }} </span>
         <button :disabled="isValid === 'false'" @click="register" type="submit" class="submit-btn">Register</button>
         <router-link class="form-other" to="/login">Login</router-link>
@@ -48,7 +48,6 @@ export default {
             
             axios.post('/register', formData, {headers: {'Content-Type': 'application/x-www-form-urlencoded', withCredentials: true}, baseURL: '/users'})
             .then((res) => {
-                console.log(res.data)
                 this.results = res.data
             })
             .catch((err) => {
@@ -56,16 +55,11 @@ export default {
             })
         },
         validationHandler() {
-            console.log(this.$refs.email.isValid);
-            console.log(this.$refs.name.isValid);
-            console.log(this.$refs.password.isValid);
             if(this.$refs.email.isValid === true && this.$refs.name.isValid === true && this.$refs.password.isValid === true) {
-                this.isValid = 'true';
-                console.log("input is valid");
+                this.isValid = 'true'
             }
             else {
-                this.isValid = 'false';
-                console.log("input is invalid");
+                this.isValid = 'false'
             }
         }
     }

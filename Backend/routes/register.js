@@ -1,5 +1,7 @@
 const express = require('express');
+const bcrypt = require('bcrypt');
 const registerRouter = express.Router();
+const passwordHasher = require('../Middleware/passwordHasher.js');
 
 const mysql = require('mysql');
 const pool = mysql.createPool({
@@ -10,6 +12,7 @@ const pool = mysql.createPool({
     database: 'podhubydb'
 });
 const registerQuery = 'INSERT INTO users(email, nickname, password, pfpPath) VALUES(?, ?, ?, ?);';
+registerRouter.use(passwordHasher);
 
 registerRouter.post('/register', (req, res) => {
     const userEmail = req.body.userEmail;

@@ -27,19 +27,25 @@ loginRouter.post('/login', (req, res) => {
                 res.status(500).json({ message: 'User not found' });
             }
             else if (checkPassword(userPassword, results[0].password)) {
-                req.session.data.user = {
-                    Email: userEmail,
-                    Name: results[0].nickname
+                if(!req.session.data.user) {
+                    req.session.data.user = {
+                        Email: userEmail,
+                        Name: results[0].nickname
+                    }
+
+                    //FIXME: DOESN'T INSERT INTO DB
+                    const JSONData = JSON.stringify(req.session.data)
+                    console.log("json in login" + JSONData);
+                    const insertQuery = process.env.QUERY_SESSION_INSERT
+                    connection.query(insertQuery,[req.sessionID, req.session.cookie.expires, JSONData] , (err) => {
+                        if(err) {
+                            console.log(err);
+                            res.status(500).json({ errno: err.errno, message: err.code })
+                        }
+                    })
                 }
                 console.log(req.sessionID);
                 console.log(req.session);
-                
-                /*
-                TODO: query db for update of session data and check if session didn't expire
-                connection.query(process.env.QUERY_SESSION_UPDATE, (err, results) => {
-
-                });
-                */
                 res.status(200).json({ message: 'Successfully logged in' });
             }
 

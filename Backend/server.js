@@ -11,7 +11,7 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(session({
     secret: 'secret-key',
-    cookie: { maxAge: 3600000 },
+    cookie: { maxAge: 3_600_000 },
     resave: false,
     saveUninitialized: false
 }));

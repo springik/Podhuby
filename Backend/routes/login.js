@@ -43,7 +43,6 @@ loginRouter.post('/login', (req, res) => {
                         Name: results[0].nickname
                     }
 
-                    //FIXME: DOESN'T INSERT INTO DB
                     const JSONData = JSON.stringify(req.session.data)
                     console.log("json in login" + JSONData);
                     const insertQuery = process.env.QUERY_SESSION_INSERT

@@ -1,5 +1,7 @@
 CREATE OR REPLACE DATABASE podhubydb;
 use podhubydb;
+--Table Creation
+
 -- user table creation query
 -- stores a user
 CREATE TABLE IF NOT EXISTS `users`(
@@ -17,3 +19,22 @@ CREATE TABLE IF NOT EXISTS `sessions`(
     `data` MEDIUMTEXT COLLATE utf8mb4_bin,
     PRIMARY KEY(`session_id`)
 );
+
+-- Procedure Creation
+
+-- session cleanup
+DELIMETER //
+CREATE PROCEDURE IF NOT EXISTS session_clean_up()
+BEGIN
+	DELETE FROM sessions
+	WHERE expires < NOW();
+END //
+DELIMETER ;
+
+-- Event Creation
+
+-- daily maintenance
+CREATE EVENT IF NOT EXISTS daily_maintenance
+ON SCHEDULE EVERY 1 DAY
+DO
+	CALL session_clean_up();

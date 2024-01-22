@@ -20,8 +20,6 @@ export default {
     methods: {
       validate(event) {
          this.inputed = true
-         console.log(this.pattern)
-         console.log(event.target.value.match(this.pattern))
          if(event.target.value.match(this.pattern) === null) {
             this.isValid = false
          }

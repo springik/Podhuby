@@ -1,17 +1,17 @@
 <template>
 <main>
+  <Navbar />
   <router-view />
+  <section class="footer-placeholder"></section>
 </main>
  
 </template>
 
 <script>
-import LoginForm from './components/LoginForm.vue'
-import RegisterForm from './components/RegisterForm.vue'
-
+import Navbar from "./components/Navbar.vue"
 export default {
   name: 'App',
-  components: { LoginForm, RegisterForm },
+  components: { Navbar }
 }
 </script>
 <style>
@@ -22,6 +22,8 @@ export default {
   --accent-color: #631e8b;
   --on-fail: red;
   --on-success: #00ff19;
+  --tertiary-color: #d4c4fb;
+  font-size: 16px;
 }
 
 body {
@@ -35,5 +37,22 @@ body {
   height: auto;
   margin-left: auto;
   margin-right: auto;
+}
+.navbar-placeholder {
+  height: 5rem;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+.footer-placeholder {
+  height: 5rem;
+}
+.hover-highlight:hover {
+    outline: 0.171rem dashed white;
+    outline-offset: 0.3125rem;
+}
+button.hover-highlight:hover {
+  outline-offset: 0.1rem;
 }
 </style>

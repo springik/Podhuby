@@ -5,8 +5,8 @@
         <InputField @onValidate="validationHandler" ref="name" name="userName" label="Username" type="text" placeholder="username" :pattern="nameRegex" errmsg="A username can only be alphanumeric and between 4 to 16 characters!" />
         <InputField @onValidate="validationHandler" ref="password" name="userPassword" label="Password" type="password" placeholder="he!w1af6" :pattern="passwordRegex" errmsg="A password can only be alphanumeric and between 6 to 22 characters!" />
         <span v-show="results.message !== ''" class="result-msg"> {{ results.message }} </span>
-        <button :disabled="isValid === 'false'" @click="register" type="submit" class="submit-btn">Register</button>
-        <router-link class="form-other" to="/login">Login</router-link>
+        <button :disabled="isValid === 'false'" @click="register" type="submit" class="submit-btn hover-highlight">Register</button>
+        <!-- <router-link class="form-other" to="/login">Login</router-link> -->
     </div>
 </template>
 
@@ -48,6 +48,8 @@ export default {
             
             axios.post('/register', formData, {headers: {'Content-Type': 'application/x-www-form-urlencoded', withCredentials: true}, baseURL: '/users'})
             .then((res) => {
+                if(res.status == 200)
+                    this.$router.push('/login')
                 this.results = res.data
             })
             .catch((err) => {
@@ -93,6 +95,7 @@ span.result-msg {
 a.form-other {
     margin-left: 20px;
     text-decoration: none;
-    border-bottom: 2px dotted var(--accent-color);
+    border-bottom: 2px dotted var(--tertiary-color);
+    color: var(--tertiary-color);
 }
 </style>

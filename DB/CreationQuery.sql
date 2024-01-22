@@ -61,6 +61,15 @@ CREATE TABLE IF NOT EXISTS `podcasts_has_genres`(
     CONSTRAINT FK_podcast_join_genre FOREIGN KEY (podcast_id)
     REFERENCES podcasts(podcast_id)
 );
+-- user favourite podcast join table creation
+CREATE TABLE IF NOT EXISTS `user-favourite-podcast`(
+    podcast_id INT NOT NULL,
+    user_id INT NOT NULL,
+    CONSTRAINT FK_favourite_join_podcast FOREIGN KEY (podcast_id)
+    REFERENCES podcasts(podcast_id),
+    CONSTRAINT FK_favourite_join_user FOREIGN KEY (user_id)
+    REFERENCES users(id)
+);
 
 -- Procedure Creation
 

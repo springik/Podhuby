@@ -1,4 +1,5 @@
-CREATE OR REPLACE DATABASE podhubydb;
+-- DB creation
+CREATE IF NOT EXISTS DATABASE podhubydb;
 use podhubydb;
 -- Table Creation
 

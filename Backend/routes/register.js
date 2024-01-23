@@ -17,6 +17,7 @@ registerRouter.post('/register', (req, res) => {
     pool.getConnection((err, connection) => {
         if(err) {
             console.log(err);
+            res.status(500);
             throw err;
         }
 

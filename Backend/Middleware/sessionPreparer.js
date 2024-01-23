@@ -1,11 +1,9 @@
 const express = require('express');
 
-//TODO: Refactor this so it's more readable
 module.exports = function userSessionCheck(req, res, next) {
     if(!req.session.data) {
         req.session.data = {};
     }
-    //TODO: query the db with the session id and incase a session is found that is valid load it into memory and if entries are found extend its lifetime
     const pool = req.app.locals.pool;
     pool.getConnection((err, connection) => {
         if(err) {

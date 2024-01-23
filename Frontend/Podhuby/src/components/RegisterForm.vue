@@ -54,6 +54,10 @@ export default {
             })
             .catch((err) => {
                 console.log(err)
+                if(err.response.data.message == 'ER_DUP_ENTRY')
+                    this.results.message = 'User already registered!'
+                else
+                    this.results.message = err.response.data.message
             })
         },
         validationHandler() {
@@ -91,6 +95,7 @@ span.result-msg {
     color: var(--accent-color);
     border-bottom: 1px dotted var(--accent-color);
     display: block;
+    text-transform: uppercase;
 }
 a.form-other {
     margin-left: 20px;

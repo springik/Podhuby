@@ -48,6 +48,7 @@ export default {
             })
             .catch((err) => {
                 console.log(err);
+                this.results.message = err.response.data.message
             })
         },
         validationHandler() {

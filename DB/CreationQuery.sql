@@ -1,5 +1,5 @@
 -- DB creation
-CREATE IF NOT EXISTS DATABASE podhubydb;
+CREATE DATABASE IF NOT EXISTS podhubydb;
 use podhubydb;
 -- Table Creation
 
@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS `users`(
     `email` varchar(32) UNIQUE KEY NOT NULL,
     `nickname` varchar(32) UNIQUE KEY NOT NULL,
     `password` varchar(64) NOT NULL,
-    `pfpPath` varchar(16)
+    `pfpPath` varchar(32) DEFAULT 'default_podcast_image.png'
 );
 -- session table creation query
 -- used to store session data
@@ -23,10 +23,15 @@ CREATE TABLE IF NOT EXISTS `sessions`(
 -- used to store podcasts
 CREATE TABLE IF NOT EXISTS `podcasts`(
     `podcast_id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `title` varchar(48) NOT NULL,
+    `description` TEXT NOT NULL,
     `link1` varchar(32) NOT NULL,
     `link2` varchar(32),
     `link3` varchar(32),
-    `imagePath` varchar(16) NOT NULL
+    `imagePath` varchar(32) NOT NULL DEFAULT 'default_podcast_image.png',
+    `genre_id` INT NOT NULL,
+    CONSTRAINT FK_podcast_genre FOREIGN KEY (genre_id)
+    REFERENCES genres(genre_id)
 );
 -- genre table creation
 -- used to store genres
@@ -52,17 +57,8 @@ CREATE TABLE IF NOT EXISTS `podcasts_has_tags`(
     CONSTRAINT FK_tag_join FOREIGN KEY (tag_id)
     REFERENCES tags(tag_id)
 );
--- podcasts <-> genres table creation
-CREATE TABLE IF NOT EXISTS `podcasts_has_genres`(
-    `genre_id` INT NOT NULL,
-    `podcast_id` INT NOT NULL,
-    CONSTRAINT FK_genre_join FOREIGN KEY (genre_id)
-    REFERENCES genres(genre_id),
-    CONSTRAINT FK_podcast_join_genre FOREIGN KEY (podcast_id)
-    REFERENCES podcasts(podcast_id)
-);
 -- user favourite podcast join table creation
-CREATE TABLE IF NOT EXISTS `user-favourite-podcast`(
+CREATE TABLE IF NOT EXISTS `user_favourite_podcast`(
     podcast_id INT NOT NULL,
     user_id INT NOT NULL,
     CONSTRAINT FK_favourite_join_podcast FOREIGN KEY (podcast_id)

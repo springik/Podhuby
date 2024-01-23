@@ -11,7 +11,6 @@ registerRouter.post('/register', (req, res) => {
     const userEmail = req.body.userEmail;
     const userName = req.body.userName;
     const userPassword = req.body.userPassword;
-    const pfpPath = process.env.DEFAULT_PFP_PATH;
 
     const pool = req.app.locals.pool;
     pool.getConnection((err, connection) => {
@@ -21,7 +20,7 @@ registerRouter.post('/register', (req, res) => {
             throw err;
         }
 
-        connection.query(registerQuery, [userEmail, userName, userPassword, pfpPath], (err) => {
+        connection.query(registerQuery, [userEmail, userName, userPassword], (err) => {
             console.log("Releasing connection...");
             connection.release();
             

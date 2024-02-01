@@ -19,6 +19,12 @@ CREATE TABLE IF NOT EXISTS `sessions`(
     `expires` TIMESTAMP(3) NOT NULL,
     `data` MEDIUMTEXT COLLATE utf8mb4_bin
 );
+-- genre table creation
+-- used to store genres
+CREATE TABLE IF NOT EXISTS `genres`(
+    `genre_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `name` varchar(32) NOT NULL
+);
 -- podcast table creation
 -- used to store podcasts
 CREATE TABLE IF NOT EXISTS `podcasts`(
@@ -32,12 +38,6 @@ CREATE TABLE IF NOT EXISTS `podcasts`(
     `genre_id` INT NOT NULL,
     CONSTRAINT FK_podcast_genre FOREIGN KEY (genre_id)
     REFERENCES genres(genre_id)
-);
--- genre table creation
--- used to store genres
-CREATE TABLE IF NOT EXISTS `genres`(
-    `genre_id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `name` varchar(32) NOT NULL
 );
 -- tag table creation
 -- used to store tags
@@ -85,3 +85,18 @@ CREATE EVENT IF NOT EXISTS daily_maintenance
 ON SCHEDULE EVERY 1 DAY
 DO
 	CALL session_clean_up();
+
+-- function creation
+
+-- array_contains(array JSON, contained_value TEXT)
+CREATE FUNCTION IF NOT EXISTS array_contains(Array JSON, contained_value TEXT)
+RETURNS INT
+BEGIN
+    DECLARE result BOOL;
+    SET result = JSON_CONTAINS(Array, contained_value) IS NOT NULL;
+    IF result THEN
+        RETURN 1;
+    ELSE
+        RETURN 0;
+    END IF;
+END;

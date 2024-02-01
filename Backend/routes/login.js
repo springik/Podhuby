@@ -1,10 +1,10 @@
-const express = require('express');
-const bcrypt = require('bcrypt');
-const loginRouter = express.Router();
-const sessionPreparer = require('../Middleware/sessionPreparer.js');
+const express = require('express')
+const bcrypt = require('bcrypt')
+const loginRouter = express.Router()
+const sessionPreparer = require('../Middleware/sessionPreparer.js')
 
-const loginQuery = process.env.QUERY_LOGIN;
-loginRouter.use(sessionPreparer);
+const loginQuery = process.env.QUERY_LOGIN
+loginRouter.use(sessionPreparer)
 
 loginRouter.post('/login', (req, res) => {
     /*
@@ -13,25 +13,25 @@ loginRouter.post('/login', (req, res) => {
     }
     */
 
-    const userEmail = req.body.userEmail;
-    const userPassword = req.body.userPassword;
+    const userEmail = req.body.userEmail
+    const userPassword = req.body.userPassword
 
-    console.log("Email: " + userEmail + "\nPassword: " + userPassword);
+    console.log("Email: " + userEmail + "\nPassword: " + userPassword)
 
-    const pool = req.app.locals.pool;
+    const pool = req.app.locals.pool
     pool.getConnection((err, connection) => {
         if(err) {
-            console.log(err);
+            console.log(err)
             res.status(500).json({ errno: err.errno, message: err.code })
         }
 
         connection.query(loginQuery, [userEmail, userPassword], (err, results) => {
             if (err) {
-                res.status(500).json({ errno: err.errno, message: err.code });
+                res.status(500).json({ errno: err.errno, message: err.code })
             }
 
             if (results.length === 0) {
-                res.status(500).json({ message: 'User not found' });
+                res.status(500).json({ message: 'User not found' })
             }
 
             if (checkPassword(userPassword, results[0].password)) {
@@ -44,12 +44,12 @@ loginRouter.post('/login', (req, res) => {
                     }
 
                     const JSONData = JSON.stringify(req.session.data)
-                    console.log("json in login" + JSONData);
+                    console.log("json in login" + JSONData)
                     const insertQuery = process.env.QUERY_SESSION_INSERT
-                    console.log(req.session.cookie);
+                    console.log(req.session.cookie)
                     connection.query(insertQuery,[req.sessionID, req.session.cookie._expires, JSONData] , (err) => {
                         if(err) {
-                            console.log(err);
+                            console.log(err)
                             res.status(500).json({ errno: err.errno, message: err.code })
                         }
                     })
@@ -61,20 +61,20 @@ loginRouter.post('/login', (req, res) => {
                     Name: results[0].nickname
                 }
                 
-                console.log(req.sessionID);
-                console.log(req.session);
-                res.status(200).json({ message: 'Successfully logged in' });
+                console.log(req.sessionID)
+                console.log(req.session)
+                res.status(200).json({ message: 'Successfully logged in' })
             }
 
-            console.log("Releasing connection...");
-            connection.release();
-        });
-    });
+            console.log("Releasing connection...")
+            connection.release()
+        })
+    })
 
     
-});
+})
 
 const checkPassword = async (password, hashedPassword) => {
     return await bcrypt.compare(password, hashedPassword)
-};
-module.exports = loginRouter;
+}
+module.exports = loginRouter

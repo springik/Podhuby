@@ -4,7 +4,7 @@ const podcastsRouter = express.Router()
 podcastsRouter.get('/all/:count?', (req, res) => {
     req.app.locals.pool.getConnection((err, connection) => {
         if(err) {
-            console.log(err);
+            console.log(err)
             res.status(500).json({ errno: err.errno, message: err.code })
         }
         const count = Number(req.params.count) || 10_000
@@ -16,33 +16,38 @@ podcastsRouter.get('/all/:count?', (req, res) => {
 
             res.status(200).json(results)
         })
-        connection.release();
+        connection.release()
     })
 })
-podcastsRouter.get('/by-genre/:podcastGenre/:tags?(^[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*$)', (req, res) => {
+podcastsRouter.get('/by-genre/:genre([a-zA-Z0-9]+)/:tags?', (req, res) => {
     req.app.locals.pool.getConnection((err, connection) => {
         if(err) {
-            console.log(err);
+            console.log(err)
             res.status(500).json({ errno: err.errno, message: err.code })
         }
-        const genre = req.params.podcastGenre
+        const { genre, tags } = req.params
 
-        if(req.params.tags === undefined) {
+        if(tags === undefined) {
             const query = process.env.QUERY_GET_PODCAST_BY_GENRE
+            console.log(genre)
         
-        connection.query(query, [genre], (err, results) => {
-            if(err)
-                res.status(500).json({ errno: err.errno, message: err.code })
-
-            res.status(200).json(results)
-        })
+            connection.query(query, [genre], (err, results) => {
+                if(err) {
+                    res.status(500).json({ errno: err.errno, message: err.code })
+                }
+            
+                res.status(200).json(results)
+            })
         }
         else {
-            //TODO: Write query for selecting this
-            const tags = req.params.tags.split('-')
+            //FIXME: DB throws parse error ie I need to insert sthing like this: ( "test", "test2" )
             const query = process.env.QUERY_GET_PODCAST_BY_GENRE_TAGGED
 
-            connection.query(query, [genre, tags], (err, results) => {
+            let tagsArr = tags.split('-')
+            tagsArr = JSON.stringify(tagsArr)
+            console.log(tagsArr)
+
+            connection.query(query, [tagsArr, genre, tags.length], (err, results) => {
                 if(err)
                     res.status(500).json({ errno: err.errno, message: err.code })
     
@@ -50,20 +55,20 @@ podcastsRouter.get('/by-genre/:podcastGenre/:tags?(^[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+
             })
         }
         
-        connection.release();
+        connection.release()
     })
 })
 podcastsRouter.get('/:podcastId(\\d+)', (req, res) => {
     req.app.locals.pool.getConnection((err, connection) => {
         if(err) {
-            console.log(err);
+            console.log(err)
             res.status(500).json({ errno: err.errno, message: err.code })
         }
         const id = Number(req.params.podcastId) || 1
         const query = process.env.QUERY_GET_PODCAST_BY_ID
         connection.query(query, [id], (err, results) => {
             if(err)
-                res.status(500).json({ errno: err.errno, message: err.code });
+                res.status(500).json({ errno: err.errno, message: err.code })
 
             res.status(200).json(results)
         })
@@ -72,13 +77,13 @@ podcastsRouter.get('/:podcastId(\\d+)', (req, res) => {
 podcastsRouter.get('/:podcastTitle(^[a-zA-Z0-9]+$)', (req, res) => {
     req.app.locals.pool.getConnection((err, connection) => {
         if(err) {
-            console.log(err);
+            console.log(err)
             res.status(500).json({ errno: err.errno, message: err.code })
         }
         const query = process.env.QUERY_GET_PODCAST_BY_TITLE
         connection.query(query, [req.params.podcastTitle], (err, results) => {
             if(err)
-                res.status(500).json({ errno: err.errno, message: err.code });
+                res.status(500).json({ errno: err.errno, message: err.code })
 
             res.status(200).json(results)
         })

@@ -1,21 +1,21 @@
-const express = require('express');
+const express = require('express')
 
 module.exports = function userSessionCheck(req, res, next) {
     if(!req.session.data) {
-        req.session.data = {};
+        req.session.data = {}
     }
-    const pool = req.app.locals.pool;
+    const pool = req.app.locals.pool
     pool.getConnection((err, connection) => {
         if(err) {
-            console.log(err);
-            res.status(500).json({ message: err.code, errno: err.errno });
+            console.log(err)
+            res.status(500).json({ message: err.code, errno: err.errno })
         }
         
         const checkQuery = process.env.QUERY_SESSION_CHECK
         connection.query(checkQuery, [req.sessionID], (err, results) => {
             if(err) {
-                console.log(err);
-                res.status(500).json({ message: err.code, errno: err.errno });
+                console.log(err)
+                res.status(500).json({ message: err.code, errno: err.errno })
             }
 
             if(results.length > 1) {
@@ -24,7 +24,7 @@ module.exports = function userSessionCheck(req, res, next) {
             }
 
             if(results.length === 0) {
-                console.log("No session entry found in DB");
+                console.log("No session entry found in DB")
                 // Releases the connection early and calls the next middleware
                 connection.release()
                 console.log("sessionPreparer released connection...")
@@ -33,9 +33,9 @@ module.exports = function userSessionCheck(req, res, next) {
             }
 
             if(results[0].expires < Date.now()) {
-                console.log("returned from db: " + results[0].data);
+                console.log("returned from db: " + results[0].data)
                 const parsedData = JSON.parse(results[0].data)
-                console.log("parsed data: " + parsedData);
+                console.log("parsed data: " + parsedData)
 
                 req.session.data = parsedData
 
@@ -43,7 +43,7 @@ module.exports = function userSessionCheck(req, res, next) {
                 const updateQuery = process.env.QUERY_SESSION_EXPIRATION_UPDATE
                 connection.query(updateQuery, (err) => {
                     if(err) {
-                        console.log(err);
+                        console.log(err)
                         res.status(500).json({ message: err.code, errno: err.errno })
                     }
                 })

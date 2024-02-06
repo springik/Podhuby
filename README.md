@@ -33,4 +33,4 @@
 ---
 [^1]: MariaDB, Express.js, Vue.js, Node.js.
 [^2]: The recomended database system is MariaDB. There's no guarantee for other database systems.
-[^3]: The API runs on `localhost:8080`
+[^3]: The API runs on `localhost:8080` by default

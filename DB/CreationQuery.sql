@@ -89,7 +89,9 @@ DO
 -- function creation
 
 -- array_contains(array JSON, contained_value TEXT)
-CREATE FUNCTION IF NOT EXISTS array_contains(Array JSON, contained_value TEXT)
+
+-- DO NOT MIGRATE TO POSTGRES (WILL NOT BE NEEDED)
+CREATE FUNCTION IF NOT EXISTS array_contains(Array JSON, contained_value JSON)
 RETURNS INT
 BEGIN
     DECLARE result BOOL;

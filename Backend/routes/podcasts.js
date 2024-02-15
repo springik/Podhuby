@@ -1,6 +1,8 @@
 const express = require('express')
 const podcastsRouter = express.Router()
 
+//FIXME: REDO quering
+
 podcastsRouter.get('/all/:count?', (req, res) => {
     req.app.locals.pool.getConnection((err, connection) => {
         if(err) {

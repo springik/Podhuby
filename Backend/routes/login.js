@@ -3,8 +3,9 @@ const bcrypt = require('bcrypt')
 const loginRouter = express.Router()
 const sessionPreparer = require('../Middleware/sessionPreparer.js')
 
-const loginQuery = process.env.QUERY_LOGIN
 loginRouter.use(sessionPreparer)
+
+//FIXME: redo quering
 
 loginRouter.post('/login', (req, res) => {
     /*

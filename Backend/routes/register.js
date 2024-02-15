@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt')
 const registerRouter = express.Router()
 const passwordHasher = require('../Middleware/passwordHasher.js')
 
+//FIXME: redo Quering
 
 const registerQuery = process.env.QUERY_REGISTER
 registerRouter.use(passwordHasher)

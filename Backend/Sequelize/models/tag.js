@@ -4,7 +4,7 @@ const {
 } = require('sequelize');
 const Podcast = require('../models/podcast.js')
 module.exports = (sequelize, DataTypes) => {
-  class User extends Model {
+  class Tag extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -12,36 +12,22 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.belongsToMany(Podcast, {through: 'User_favourite_Podcasts'})
+      this.belongsToMany(Podcast, {through: 'Podcast_Tags'})
     }
   }
-  User.init({
+  Tag.init({
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true
     },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true
-    },
-    nickname: {
+    name: {
       type: DataTypes.STRING,
       allowNull: false
-    },
-    password: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    pfpPath: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      defaultValue: '/default_pfp.jpg'
     }
   }, {
     sequelize,
-    modelName: 'User',
-    underscored: true
+    modelName: 'Tag',
+    underscored: true,
   });
-  return User;
+  return Tag;
 };

@@ -2,9 +2,11 @@
 const {
   Model
 } = require('sequelize');
-const Podcast = require('../models/podcast.js')
+const Genre = require('../models/genre.js')
+const Tag = require('../models/tag.js')
+const User = require('../models/user.js')
 module.exports = (sequelize, DataTypes) => {
-  class User extends Model {
+  class Podcast extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -12,36 +14,43 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.belongsToMany(Podcast, {through: 'User_favourite_Podcasts'})
+      this.belongsTo(Genre, {
+        foreignKey: 'genre_id'
+      });
+      this.belongsToMany(Tag, {through: 'Podcast_Tags'})
+      this.belongsToMany(User, {through: 'User_favourite_Podcasts'})
     }
   }
-  User.init({
+  Podcast.init({
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true
     },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true
-    },
-    nickname: {
+    title: {
       type: DataTypes.STRING,
       allowNull: false
     },
-    password: {
+    description: {
       type: DataTypes.STRING,
       allowNull: false
     },
-    pfpPath: {
+    links: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
+      allowNull: false
+    },
+    image_path: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: '/default_pfp.jpg'
+      defaultValue: '/default_podcast_image.png'
+    },
+    genre_id: {
+      type: DataTypes.INT,
+      allowNull: false,
     }
   }, {
     sequelize,
-    modelName: 'User',
+    modelName: 'Podcast',
     underscored: true
   });
-  return User;
+  return Podcast;
 };

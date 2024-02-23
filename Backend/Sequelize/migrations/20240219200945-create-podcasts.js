@@ -2,30 +2,37 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Users', {
+    await queryInterface.createTable('Podcasts', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      email: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        unique: true
-      },
-      nickname: {
+      title: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      password: {
+      description: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      pfpPath: {
+      links: {
+        type: Sequelize.ARRAY(Sequelize.STRING),
+        allowNull: false
+      },
+      image_path: {
         type: Sequelize.STRING,
         allowNull: false,
-        defaultValue: '/default_pfp.jpg'
+        defaultValue: '/default_podcast_image.png'
+      },
+      genre_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Genres',
+          key: 'id'
+        }
       },
       created_at: {
         allowNull: false,
@@ -38,6 +45,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Users');
+    await queryInterface.dropTable('Podcasts');
   }
 };

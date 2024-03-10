@@ -4,10 +4,9 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('Podcasts', {
       id: {
-        allowNull: false,
+        type: Sequelize.INTEGER,
         autoIncrement: true,
-        primaryKey: true,
-        type: Sequelize.INTEGER
+        primaryKey: true
       },
       title: {
         type: Sequelize.STRING,
@@ -17,22 +16,22 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
-      links: {
-        type: Sequelize.ARRAY(Sequelize.STRING),
-        allowNull: false
+      youtube_link: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      spotify_link: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      third_link: {
+        type: Sequelize.STRING,
+        allowNull: true
       },
       image_path: {
         type: Sequelize.STRING,
         allowNull: false,
         defaultValue: '/default_podcast_image.png'
-      },
-      genre_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'Genres',
-          key: 'id'
-        }
       },
       created_at: {
         allowNull: false,

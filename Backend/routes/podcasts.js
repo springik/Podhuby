@@ -1,95 +1,76 @@
 const express = require('express')
 const podcastsRouter = express.Router()
+const db = require('../Sequelize/models');
+const axios = require('axios')
 
 //FIXME: REDO quering
 
 podcastsRouter.get('/all/:count?', (req, res) => {
-    req.app.locals.pool.getConnection((err, connection) => {
-        if(err) {
-            console.log(err)
-            res.status(500).json({ errno: err.errno, message: err.code })
+    db.Podcast.findAll({
+        attributes: ['id', 'title', 'description', 'youtube_link', 'spotify_link', 'third_link', 'image_path', [db.sequelize.fn('array_agg', db.sequelize.col('Genres.name')), 'genre_names'], [db.sequelize.fn('array_agg', db.sequelize.col('Tags.name')), 'tag_names']],
+        include: [
+          {
+            model: db.Genre,
+            attributes: [],
+            through: { attributes: [] },
+            required: true
+          },
+          {
+            model: db.Tag,
+            attributes: [],
+            through: { attributes: [] },
+            required: true
+          }
+        ],
+        group: ['Podcast.id']
+      })
+    .then((result) => {
+        if(result == null) {
+            res.status(500)
+            return
         }
-        const count = Number(req.params.count) || 10_000
-        const query = process.env.QUERY_GET_PODCAST_ALL
-        
-        connection.query(query, [count], (err, results) => {
-            if(err)
-                res.status(500).json({ errno: err.errno, message: err.code })
-
-            res.status(200).json(results)
+        let podcasts = result.map((podcast) => {
+            return {
+                id: podcast.id,
+                title: podcast.title,
+                description: podcast.description,
+                links: { youtube: podcast.youtube_link, spotify: podcast.spotify_link, third: podcast.third_link },
+                image_path: podcast.image_path,
+                genre_names: podcast.dataValues.genre_names,
+                tag_names: podcast.dataValues.tag_names
+            }
         })
-        connection.release()
-    })
+
+        res.status(200).json(JSON.stringify(podcasts))
+    }).catch((err) => {
+        console.log(err);
+        res.status(500).json({ message: "Server error" })
+    });
 })
 podcastsRouter.get('/by-genre/:genre([a-zA-Z0-9]+)/:tags?', (req, res) => {
-    req.app.locals.pool.getConnection((err, connection) => {
-        if(err) {
-            console.log(err)
-            res.status(500).json({ errno: err.errno, message: err.code })
-        }
-        const { genre, tags } = req.params
 
-        if(tags === undefined) {
-            const query = process.env.QUERY_GET_PODCAST_BY_GENRE
-            console.log(genre)
-        
-            connection.query(query, [genre], (err, results) => {
-                if(err) {
-                    res.status(500).json({ errno: err.errno, message: err.code })
-                }
-            
-                res.status(200).json(results)
-            })
-        }
-        else {
-            //FIXME: DB throws parse error ie I need to insert sthing like this: ( "test", "test2" )
-            const query = process.env.QUERY_GET_PODCAST_BY_GENRE_TAGGED
-
-            let tagsArr = tags.split('-')
-            tagsArr = JSON.stringify(tagsArr)
-            console.log(tagsArr)
-
-            connection.query(query, [tagsArr, genre, tags.length], (err, results) => {
-                if(err)
-                    res.status(500).json({ errno: err.errno, message: err.code })
-    
-                res.status(200).json(results)
-            })
-        }
-        
-        connection.release()
-    })
 })
 podcastsRouter.get('/:podcastId(\\d+)', (req, res) => {
-    req.app.locals.pool.getConnection((err, connection) => {
-        if(err) {
-            console.log(err)
-            res.status(500).json({ errno: err.errno, message: err.code })
-        }
-        const id = Number(req.params.podcastId) || 1
-        const query = process.env.QUERY_GET_PODCAST_BY_ID
-        connection.query(query, [id], (err, results) => {
-            if(err)
-                res.status(500).json({ errno: err.errno, message: err.code })
-
-            res.status(200).json(results)
-        })
-    })
+    
 })
 podcastsRouter.get('/:podcastTitle(^[a-zA-Z0-9]+$)', (req, res) => {
-    req.app.locals.pool.getConnection((err, connection) => {
-        if(err) {
-            console.log(err)
-            res.status(500).json({ errno: err.errno, message: err.code })
-        }
-        const query = process.env.QUERY_GET_PODCAST_BY_TITLE
-        connection.query(query, [req.params.podcastTitle], (err, results) => {
-            if(err)
-                res.status(500).json({ errno: err.errno, message: err.code })
 
-            res.status(200).json(results)
-        })
-    })
+})
+
+podcastsRouter.post('/', (req, res) => {
+  const channelHandle = req.body.channelHandle
+  const url = `https://www.googleapis.com/youtube/v3/channels?part=snippet&forHandle=${channelHandle}&key=${process.env.YOUTUBE_API_KEY}`
+
+  axios.get(url)
+  .then((result) => {
+    res.status(200).json({ message: 'Successfully added podcast' })
+    console.log(result);
+    return
+  }).catch((err) => {
+    console.log(err);
+    res.status(500).json({ message: 'Server error' })
+    return
+  });
 })
 
 module.exports = podcastsRouter

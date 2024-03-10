@@ -4,10 +4,9 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('Users', {
       id: {
-        allowNull: false,
+        type: Sequelize.INTEGER,
         autoIncrement: true,
-        primaryKey: true,
-        type: Sequelize.INTEGER
+        primaryKey: true
       },
       email: {
         type: Sequelize.STRING,
@@ -22,7 +21,7 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
-      pfpPath: {
+      pfp_path: {
         type: Sequelize.STRING,
         allowNull: false,
         defaultValue: '/default_pfp.jpg'

@@ -2,7 +2,6 @@
 const {
   Model
 } = require('sequelize');
-const Podcast = require('../models/podcast.js')
 module.exports = (sequelize, DataTypes) => {
   class Tag extends Model {
     /**
@@ -12,13 +11,14 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.belongsToMany(Podcast, {through: 'Podcast_Tags'})
+      this.belongsToMany(models.Podcast, {through: 'Podcast_Tags'})
     }
   }
   Tag.init({
     id: {
       type: DataTypes.INTEGER,
-      primaryKey: true
+      primaryKey: true,
+      autoIncrement: true
     },
     name: {
       type: DataTypes.STRING,
@@ -27,6 +27,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'Tag',
+    tableName: 'Tags',
     underscored: true,
   });
   return Tag;

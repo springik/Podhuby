@@ -25,6 +25,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'User_favourite_Podcast',
+    tableName: 'User_favourite_Podcasts'
   });
   return User_favourite_Podcast;
 };

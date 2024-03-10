@@ -2,7 +2,6 @@
 const {
   Model
 } = require('sequelize');
-const Podcast = require('../models/podcast.js')
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     /**
@@ -12,13 +11,14 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.belongsToMany(Podcast, {through: 'User_favourite_Podcasts'})
+      this.belongsToMany(models.Podcast, {through: 'User_favourite_Podcasts'})
     }
   }
   User.init({
     id: {
       type: DataTypes.INTEGER,
-      primaryKey: true
+      primaryKey: true,
+      autoIncrement: true
     },
     email: {
       type: DataTypes.STRING,
@@ -33,7 +33,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
-    pfpPath: {
+    pfp_path: {
       type: DataTypes.STRING,
       allowNull: false,
       defaultValue: '/default_pfp.jpg'
@@ -41,6 +41,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'User',
+    tableName: 'Users',
     underscored: true
   });
   return User;

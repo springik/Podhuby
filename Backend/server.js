@@ -18,7 +18,6 @@ const corsOptions = {
     origin: 'http://localhost:8081',
     optionSuccessStatus: 200
 }
-
 app.listen(process.env.PORT || 8080)
 
 const loginRouter = require('./routes/login')

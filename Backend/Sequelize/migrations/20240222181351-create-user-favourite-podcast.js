@@ -6,6 +6,7 @@ module.exports = {
       podcast_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
+        primaryKey: true,
         references: {
           model: 'Podcasts',
           key: 'id'
@@ -14,6 +15,7 @@ module.exports = {
       user_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
+        primaryKey: true,
         references: {
           model: 'Users',
           key: 'id'

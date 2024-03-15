@@ -16,16 +16,20 @@ module.exports = (sequelize, DataTypes) => {
   User_favourite_Podcast.init({
     podcast_id: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      primaryKey: true
     },
     user_id: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      primaryKey: true
     }
   }, {
     sequelize,
     modelName: 'User_favourite_Podcast',
-    tableName: 'User_favourite_Podcasts'
+    tableName: 'User_favourite_Podcasts',
+    timestamps: false,
+    primaryKey: false
   });
   return User_favourite_Podcast;
 };

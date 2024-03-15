@@ -3,25 +3,27 @@ const podcastsRouter = express.Router()
 const db = require('../Sequelize/models');
 const axios = require('axios')
 const {Op, where, QueryTypes} = require('sequelize')
+const sessionPreparer = require('../Middleware/sessionPreparer.js')
 
-//FIXME: REDO quering
+podcastsRouter.use(sessionPreparer)
 
+//FIXME: add tags to the returned query
 podcastsRouter.get('/all/:count?', (req, res) => {
     db.Podcast.findAll({
-        attributes: ['id', 'title', 'description', 'youtube_link', 'spotify_link', 'third_link', 'image_path', [db.sequelize.fn('array_agg', db.sequelize.col('Genres.name')), 'genre_names'], [db.sequelize.fn('array_agg', db.sequelize.col('Tags.name')), 'tag_names']],
+        attributes: ['id', 'title', 'description', 'youtube_link', 'spotify_link', 'third_link', 'image_path', [db.sequelize.fn('array_agg', db.sequelize.col('Genres.name')), 'genre_names']/*, [db.sequelize.fn('array_agg', db.sequelize.col('Tags.name')), 'tag_names']*/],
         include: [
           {
             model: db.Genre,
             attributes: [],
             through: { attributes: [] },
             required: true
-          },
+          }/*,
           {
             model: db.Tag,
             attributes: [],
             through: { attributes: [] },
             required: true
-          }
+          }*/
         ],
         group: ['Podcast.id']
       })
@@ -57,6 +59,36 @@ podcastsRouter.get('/:podcastId(\\d+)', (req, res) => {
 podcastsRouter.get('/:podcastTitle(^[a-zA-Z0-9]+$)', (req, res) => {
 
 })
+podcastsRouter.post('/favourite/:podcastId(\\d+)', async (req, res) => {
+  if(req.session.data.user == undefined || req.session.data.user == null) {
+    res.status(401).json({ message: 'User not authorized' })
+    return
+  }
+
+  try {
+    const [user_favourite_podcast, created] = await db.User_favourite_Podcast.findOrCreate({
+      where: {
+        podcast_id: req.params.podcastId,
+        user_id: req.session.data.user.id
+      }
+    })
+
+    if(created) {
+      res.status(200).json({ message: 'Podcast favourited' })
+      return
+    }
+
+    await user_favourite_podcast.destroy()
+    res.status(200).json({ message: 'Successfully unfavourited podcast' })
+    return
+  }
+  catch(err)
+  {
+    console.log(err);
+    res.status(500).json({ message: 'Server error' })
+    return
+  }
+})
 
 podcastsRouter.post('/', async (req, res) => {
   const channelHandle = req.body.channelHandle
@@ -80,26 +112,7 @@ podcastsRouter.post('/', async (req, res) => {
     res.status(500).json({ message: "Server error" })
     return
   }
-
-  /*
-  axios.get(url)
-  .then((result) => {
-    podcastData = result.data.items.map((podcast) => {
-      return {
-        title: podcast.snippet.title,
-        description: podcast.snippet.description,
-        pfp_path: podcast.snippet.thumbnails.default.url,
-        youtube_link: "https://youtube.com/" + podcast.snippet.customUrl
-      }
-    })
-  })
-  .catch((err) => {
-    console.log(err);
-    res.status(500).json({ message: 'Server error' })
-    return
-  });
-  */
-
+  
   const genres = await getGenresFromDB(userGenres)
   if(genres == null) {
     res.status(500).json({ message: "Server error" })
@@ -151,18 +164,7 @@ podcastsRouter.post('/', async (req, res) => {
 
     const joinTablePromise = genres.map(async (genre) => {
       console.log("Current genre", genre);
-
-      //FIXME: For some reason both ids are null, when sequelize inserts them as parameters into the query
-      /*
-      const podcast_genre = await db.Podcast_Genres.create({
-        podcast_id: podcast.dataValues.id,
-        genre_id: genre.dataValues.id
-      })
-      */
-
       await db.sequelize.query('insert into "Podcast_Genres" values($podcast, $genre)', { bind: { podcast: podcast.dataValues.id, genre: genre.dataValues.id }, type: QueryTypes.INSERT})
-
-      //console.log("Created Podcast_genre", podcast_genre);
     })
     await Promise.all(joinTablePromise)
     res.status(200).json({ message: "Podcast created successfully" })

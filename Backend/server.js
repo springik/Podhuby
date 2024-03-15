@@ -16,7 +16,8 @@ app.use(session({
 }))
 const corsOptions = {
     origin: 'http://localhost:8081',
-    optionSuccessStatus: 200
+    optionSuccessStatus: 200,
+    credentials: true,
 }
 app.listen(process.env.PORT || 8080)
 
@@ -25,4 +26,4 @@ const registerRouter = require('./routes/register')
 const podcastsRouter = require('./routes/podcasts.js')
 
 app.use('/users', cors(corsOptions), loginRouter, registerRouter)
-app.use('/podcasts', podcastsRouter)
+app.use('/podcasts', cors(corsOptions), podcastsRouter)

@@ -40,7 +40,7 @@ export default {
                 userPassword:this.userPassword
             }
             
-            axios.post('/login', formData, {headers: {'Content-Type': 'application/x-www-form-urlencoded', withCredentials: true}, baseURL: '/users'})
+            axios.post('/users/login', formData, {headers: {'Content-Type': 'application/x-www-form-urlencoded', withCredentials: true}, baseURL: '/api'})
             .then((res) => {
                 if(res.status == 200)
                     this.$router.push('/')

@@ -59,7 +59,7 @@ podcastsRouter.get('/:podcastId(\\d+)', (req, res) => {
 podcastsRouter.get('/:podcastTitle(^[a-zA-Z0-9]+$)', (req, res) => {
 
 })
-podcastsRouter.post('/favourite/:podcastId(\\d+)', async (req, res) => {
+podcastsRouter.post('/favourite/:podcastId', async (req, res) => {
   if(req.session.data.user == undefined || req.session.data.user == null) {
     res.status(401).json({ message: 'User not authorized' })
     return

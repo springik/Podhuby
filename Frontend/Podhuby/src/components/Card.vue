@@ -39,8 +39,17 @@ export default {
             }
 
             try {
+                const axiosIns = axios.create({
+                    baseURL: '/api',
+                    withCredentials: true
+                })
                 const url = `podcasts/favourite/${this.podcast_id}`
-                const result = await axios.put(url, { header: { withCredentials: true }, baseURL: '/api' })
+                //const result = await axios.post(url, { header: { withCredentials: true }, baseURL: '/api' })
+                const result = await axiosIns.post(url)
+                //TODO: popup modal with returned message
+                if(result.status === 401 || result.status === 500) {
+                    this.$router.push('/login')
+                }
                 console.log(result);
             }
             catch(err)

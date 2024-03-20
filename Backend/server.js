@@ -24,6 +24,7 @@ app.listen(process.env.PORT || 8080)
 const loginRouter = require('./routes/login')
 const registerRouter = require('./routes/register')
 const podcastsRouter = require('./routes/podcasts.js')
+const userDataRouter = require('./routes/userdata.js')
 
 app.use('/users', cors(corsOptions), loginRouter, registerRouter)
 app.use('/podcasts', cors(corsOptions), podcastsRouter)

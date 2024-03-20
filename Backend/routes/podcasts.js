@@ -90,7 +90,7 @@ podcastsRouter.post('/favourite/:podcastId', async (req, res) => {
   }
 })
 
-podcastsRouter.post('/', async (req, res) => {
+podcastsRouter.post('/youtube/submit', async (req, res) => {
   const channelHandle = req.body.channelHandle
   const url = `https://www.googleapis.com/youtube/v3/channels?part=snippet&forHandle=${channelHandle}&key=${process.env.YOUTUBE_API_KEY}`
   const userGenres = req.body.genres
@@ -177,6 +177,9 @@ podcastsRouter.post('/', async (req, res) => {
   });
 
   })
+podcastsRouter.post('/spotify/submit', async (req, res) => {
+  const token = await getSpotifyToken()
+})
 
 const getGenresFromDB = async function(genresToSearch) {
 
@@ -190,5 +193,17 @@ const getGenresFromDB = async function(genresToSearch) {
   })
 
   return results
+}
+const getSpotifyToken = async () => {
+  try {
+    const response = await axios.post('https://accounts.spotify.com/api/token', { 'grant-type': 'client-credentials' }, { headers: { 'Content-Type': 'application/x-www-form-urlencoded', Authorization: 'Basic ' + `${process.env.SPOTIFY_CLIENT_ID}` + ':' + `${process.env.SPOTIFY_CLIENT_SECRET}` } })
+    console.log(response);
+    return response
+  }
+  catch(err)
+  {
+    console.log(err);
+    throw err
+  }
 }
 module.exports = podcastsRouter

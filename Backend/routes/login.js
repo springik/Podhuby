@@ -6,8 +6,6 @@ const db = require('../Sequelize/models')
 
 loginRouter.use(sessionPreparer)
 
-//FIXME: redo quering
-
 loginRouter.post('/login', (req, res) => {
     if(req.session.data.user != undefined || req.session.data.user != null) {
         res.status(200).json({ message: "Successfully logged in" })
@@ -30,6 +28,32 @@ loginRouter.post('/login', (req, res) => {
     }).catch((err) => {
         console.log(err);
         res.status(500).json({ message: "Something went wrong", code: err.code })
+    });
+})
+
+loginRouter.get('/current-user', async (req, res) => {
+    if(req.session.data.user == undefined || req.session.data.user == null) {
+        res.status(403).json({ message: 'User not logged in' })
+        return
+    }
+    
+    
+    db.User.findOne({ where: { email: req.session.data.user.email } })
+    .then((result) => {
+
+        const returned = {
+            id: result.id,
+            email: result.email,
+            nickname: result.nickname,
+            pfp_path: result.pfp_path
+        }
+
+        res.status(200).json(returned)
+        return
+    }).catch((err) => {
+        console.log(err);
+        res.status(500).json({ message: 'Fetch failed' })
+        return
     });
 })
 module.exports = loginRouter

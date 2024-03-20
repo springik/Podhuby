@@ -86,6 +86,7 @@ export default {
 img.card-heart {
     height: 1.5rem;
     width: 1.5rem;
+    box-sizing: initial;
 }
 .card-description {
     padding: 0% 5%;

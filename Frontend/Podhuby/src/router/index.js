@@ -3,6 +3,7 @@ import LoginForm from '../components/LoginForm.vue'
 import RegisterForm from '../components/RegisterForm.vue'
 import MainPage from '../components/MainPage.vue'
 import Podcast from '../components/Podcast.vue'
+import Profile from '../components/Profile.vue'
 
 const routes = [
     {
@@ -19,6 +20,11 @@ const routes = [
         path: '/',
         name: 'Main',
         component: MainPage
+    },
+    {
+        path: '/profile',
+        name: 'Profile',
+        component: Profile
     },
     {
         path: '/podcast/:title',

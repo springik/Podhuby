@@ -9,9 +9,17 @@
 
 <script>
 import Navbar from "./components/Navbar.vue"
+import { useUserStore } from './stores/userStore'
+
 export default {
   name: 'App',
-  components: { Navbar }
+  components: { Navbar },
+  setup() {
+    const userStore = useUserStore()
+    return {
+      userStore
+    }
+  }
 }
 </script>
 <style>
@@ -37,13 +45,6 @@ body {
   height: auto;
   margin-left: auto;
   margin-right: auto;
-}
-.navbar-placeholder {
-  height: 5rem;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  flex-wrap: nowrap;
 }
 .footer-placeholder {
   height: 5rem;

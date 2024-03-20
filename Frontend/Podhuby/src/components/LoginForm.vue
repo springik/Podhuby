@@ -12,10 +12,18 @@
 <script>
 import InputField from './InputField.vue'
 import axios from 'axios';
+import  { useUserStore } from '../stores/userStore'
 
 export default {
     name: 'LoginForm',
     components: { InputField },
+    setup() {
+        const userStore = useUserStore()
+
+        return {
+        userStore
+        }
+    },
     data() {
         return {
             results: [],
@@ -40,10 +48,26 @@ export default {
                 userPassword:this.userPassword
             }
             
-            axios.post('/users/login', formData, {headers: {'Content-Type': 'application/x-www-form-urlencoded', withCredentials: true}, baseURL: '/api'})
+            axios.post('/users/login', formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded', withCredentials: true }, baseURL: '/api'})
             .then((res) => {
-                if(res.status == 200)
-                    this.$router.push('/')
+                if(res.status == 200) {
+                    axios.get('/users/current-user', { header: { withCredentials: true }, baseURL: '/api' })
+                    .then((result) => {
+                        if(result == null || result == undefined) {
+                            this.userStore.setUser(null)
+                            console.log('set to null');
+                        }
+                        console.log(result);
+                        this.userStore.setUser(result.data)
+                    }).catch((err) => {
+                        console.log(err);
+                        this.userStore.setUser(null)
+                        console.log('set to null');
+                        throw err
+                    });
+                    
+                    //this.$router.push('/')
+                }
                 this.results = res.data
             })
             .catch((err) => {

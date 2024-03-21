@@ -26,7 +26,7 @@ export default {
 @import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@400..700');
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700');
 :root {
-  --main-color: #181818;
+  --main-color: #000000f2;
   --accent-color: #631e8b;
   --on-fail: red;
   --on-success: #00ff19;

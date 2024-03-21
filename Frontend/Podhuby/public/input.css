@@ -3,3 +3,18 @@
 @tailwind components;
 
 @tailwind utilities;
+
+.podcast-header {
+    font-weight: 700;
+    font-family: 'Oswald', sans-serif;
+}
+.header-border {
+    outline-offset: 32px;
+    border-top-left-radius: 33%;
+    border-top-right-radius: 80%;
+    border-bottom-left-radius: 90px;
+    border-bottom-right-radius: 33%;
+}
+.podcast-p-shadow {
+    text-shadow: 1px 1.5px var(--accent-color);
+}

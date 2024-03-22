@@ -27,4 +27,4 @@ const podcastsRouter = require('./routes/podcasts.js')
 const userDataRouter = require('./routes/userdata.js')
 
 app.use('/users', cors(corsOptions), loginRouter, registerRouter)
-app.use('/podcasts', cors(corsOptions), podcastsRouter)
+app.use('/podcasts', podcastsRouter)

@@ -85,14 +85,102 @@ GROUP BY Podcast.id;
     res.status(500).json({ message: 'Server error' })
   }
 })
-podcastsRouter.get('/by-genre/:genre([a-zA-Z0-9]+)/:tags?', (req, res) => {
+podcastsRouter.get('/by-genre/:genres/:tags?', async (req, res) => {
+  const { genres, tags } = req.params
 
+  const query = `
+SELECT
+  p.id,
+  p.title,
+  p.description,
+  p.youtube_link,
+  array_agg(DISTINCT g.name) AS genre_names,
+  array_agg(DISTINCT t.name) AS tag_names
+FROM "Podcasts" p
+JOIN "Podcast_Genres" pg ON p.id = pg.podcast_id
+JOIN "Genres" g ON pg.genre_id = g.id
+JOIN "Podcast_Tags" pt ON p.id = pt.podcast_id
+JOIN "Tags" t ON pt.tag_id = t.id
+WHERE g.name = ANY (ARRAY[:genres])
+   OR t.name = ANY (ARRAY[:tags])
+GROUP BY p.id;`
+
+  const parameters = {
+    genres: genres ? genres.split('-').map(genre => genre.trim()) : [],
+    tags: tags ? tags.split('-').map(tag => tag.trim()) : [],
+  }
+  //console.log(parameters);
+
+  try
+  {
+    const result = await db.sequelize.query(query, {
+      type: QueryTypes.SELECT,
+      replacements: parameters
+    })
+    if(result === null || result === undefined) {
+      req.status(404).json({ message: 'No podcasts found' })
+      return
+    }
+
+    res.status(200).json(result)
+    return
+  }
+  catch(err)
+  {
+    console.log(err);
+    res.status(500).json(err)
+    return
+  }
+
+
+})
+podcastsRouter.get('/:podcastTitle', async (req, res) => {
+  const { podcastTitle } = req.params
+
+  const query = `
+SELECT
+  p.id,
+  p.title,
+  p.description,
+  p.youtube_link,
+  array_agg(DISTINCT g.name) AS genre_names,
+  array_agg(DISTINCT t.name) AS tag_names
+FROM "Podcasts" p
+JOIN "Podcast_Genres" pg ON p.id = pg.podcast_id
+JOIN "Genres" g ON pg.genre_id = g.id
+JOIN "Podcast_Tags" pt ON p.id = pt.podcast_id
+JOIN "Tags" t ON pt.tag_id = t.id
+WHERE p.title = :title
+GROUP BY p.id;`
+
+  const parameters = {
+    title: podcastTitle
+  }
+  console.log(parameters);
+
+  try
+  {
+    const result = await db.sequelize.query(query, {
+      type: QueryTypes.SELECT,
+      replacements: parameters
+    })
+    if(result === null || result === undefined) {
+      res.status(404).json({ message: 'Podcast not found' })
+      return
+    }
+
+    res.status(200).json(result)
+    return
+  }
+  catch (err)
+  {
+    console.log(err);
+    res.status(500).json({ message: 'Server error' })
+    return
+  }
 })
 podcastsRouter.get('/:podcastId(\\d+)', (req, res) => {
     
-})
-podcastsRouter.get('/:podcastTitle(^[a-zA-Z0-9]+$)', (req, res) => {
-
 })
 podcastsRouter.post('/favourite/:podcastId', async (req, res) => {
   if(req.session.data.user == undefined || req.session.data.user == null) {

@@ -1,0 +1,9 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="50" height="50">
+	<title>icons8-down-arrow-50</title>
+	<defs>
+		<image  width="46" height="26" id="img1" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAC4AAAAaBAMAAAA6fHO/AAAAAXNSR0IB2cksfwAAACRQTFRFAAAAfwB/VSp/Yh2LYx2KYR2KYh6KVRyNYx6LYx6LXx9/Yh6L8zah5gAAAAx0Uk5TAAIGs3hwuAn/uQi3OgjrVgAAALhJREFUeJxtzb0NAjEMhmE70tUgGiRaFkBXwABI1FQnymuAJehuG1iABokBWOF2YAAkcBzH+TGpokffmyBM32AOftG1L+vdApfH+7PmZpiQfy61H1YzdOt9HTQDzhFsQPMTggn8vEcwgZ8DeRXw3HsV8Jy9CMKcvQjCPHgWyDx4FshcXIM4F9cgzqNLoPPoEuhcnYM0V+cgzZNT8NjqPDncRoB2B8YpSPPM6Qd9vXC3Off/HK5duv8AlLNAXMhnsJgAAAAASUVORK5CYII="/>
+	</defs>
+	<style>
+	</style>
+	<use id="Background" href="#img1" x="2" y="12"/>
+</svg>

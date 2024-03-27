@@ -109,7 +109,6 @@ GROUP BY p.id;`
     genres: genres ? genres.split('-').map(genre => genre.trim()) : [],
     tags: tags ? tags.split('-').map(tag => tag.trim()) : [],
   }
-  //console.log(parameters);
 
   try
   {

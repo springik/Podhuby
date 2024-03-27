@@ -15,6 +15,21 @@
     border-bottom-left-radius: 90px;
     border-bottom-right-radius: 33%;
 }
+@media screen and (max-width: 640px) {
+    .header-border {
+        outline-offset: 16px;
+        border-top-left-radius: 33%;
+        border-top-right-radius: 80%;
+        border-bottom-left-radius: 90px;
+        border-bottom-right-radius: 33%;
+    }
+}
 .podcast-p-shadow {
     text-shadow: 1px 1.5px var(--accent-color);
+}
+.rotate-n-90 {
+    transform: rotate(-90deg);
+}
+.separator-col {
+    border-top: 2px dashed var(--accent-color);
 }

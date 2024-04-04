@@ -33,3 +33,18 @@
 .separator-col {
     border-top: 2px dashed var(--accent-color);
 }
+div.main-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8rem;
+    margin-top: 0.3125rem;
+}
+section.main-page-content {
+    margin-left: auto;
+    margin-right: auto;
+    width: 70%;
+}
+div.grid-item {
+    padding: 1%;
+    background-color: var(--accent-color);
+}

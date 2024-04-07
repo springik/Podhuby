@@ -9,16 +9,20 @@
 <script>
 export default {
     name: 'Toggle',
-    props: ['toggleText'],
+    props: ['toggleText', 'type'],
+    emits: [ 'choiceChange' ],
     data() {
         return {
             chosen: false,
-            text: this.toggleText
+            text: this.toggleText,
+            type: this.type
         }
     },
     methods: {
         toggle() {
+            console.log('Toggle toggled');
             this.chosen = !this.chosen
+            this.$emit('choiceChange', { type: this.type, chosen: this.chosen, text: this.text })
         }
     }
 }

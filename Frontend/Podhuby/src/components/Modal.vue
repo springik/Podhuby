@@ -1,5 +1,5 @@
 <template>
-  <div class="text-white fixed inset-0 flex justify-center items-center w-full h-full" v-if="showing">
+  <div class="text-white fixed inset-0 flex justify-center items-center w-full h-full" v-show="showing">
     <div class="bg-mainColor p-6 rounded-lg">
         <button @click="hide">
             <img src="/cross.png" alt="cancel">

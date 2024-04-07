@@ -65,8 +65,8 @@ podcastsRouter.get('/all/:count?', async (req, res) => {
 FROM "Podcasts" AS Podcast
 JOIN "Podcast_Genres" AS genre_join ON Podcast.id = genre_join.podcast_id
 JOIN "Genres" AS Genre ON genre_join.genre_id = Genre.id
-JOIN "Podcast_Tags" AS tag_join ON Podcast.id = tag_join.podcast_id
-JOIN "Tags" AS Tag ON tag_join.tag_id = Tag.id
+LEFT JOIN "Podcast_Tags" AS tag_join ON Podcast.id = tag_join.podcast_id
+LEFT JOIN "Tags" AS Tag ON tag_join.tag_id = Tag.id
 GROUP BY Podcast.id;
 `
 

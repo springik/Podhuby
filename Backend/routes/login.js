@@ -1,80 +1,59 @@
-const express = require('express');
-const bcrypt = require('bcrypt');
-const loginRouter = express.Router();
-const sessionPreparer = require('../Middleware/sessionPreparer.js');
+const express = require('express')
+const bcrypt = require('bcrypt')
+const loginRouter = express.Router()
+const sessionPreparer = require('../Middleware/sessionPreparer.js')
+const db = require('../Sequelize/models')
 
-const loginQuery = process.env.QUERY_LOGIN;
-loginRouter.use(sessionPreparer);
+loginRouter.use(sessionPreparer)
 
 loginRouter.post('/login', (req, res) => {
-    /*
-    if(typeof req.session.data.user !== 'undefined') {
-        res.status(409).json({ message: 'Conflicting information!' })
+    if(req.session.data.user != undefined || req.session.data.user != null) {
+        res.status(200).json({ message: "Successfully logged in" })
+        return
     }
-    */
 
-    const userEmail = req.body.userEmail;
-    const userPassword = req.body.userPassword;
-
-    console.log("Email: " + userEmail + "\nPassword: " + userPassword);
-
-    const pool = req.app.locals.pool;
-    pool.getConnection((err, connection) => {
-        if(err) {
-            console.log(err);
-            res.status(500).json({ errno: err.errno, message: err.code })
+    db.User.findOne({where: { email: req.body.userEmail }})
+    .then((result) => {
+        if(result == null || result == undefined) {
+            res.status(500).json({ message: "User not found" })
+            return
+        }
+        if(!bcrypt.compare(req.body.userPassword, result.password)) {
+            res.status(500).json({message: "User authentication failed"})
+            return
         }
 
-        connection.query(loginQuery, [userEmail, userPassword], (err, results) => {
-            if (err) {
-                res.status(500).json({ errno: err.errno, message: err.code });
-            }
-
-            if (results.length === 0) {
-                res.status(500).json({ message: 'User not found' });
-            }
-
-            if (checkPassword(userPassword, results[0].password)) {
-                // If the user doesn't exist in session
-                // Create it and insert the session into the DB as it wasn't recovered from the DB
-                if(!req.session.data.user) {
-                    req.session.data.user = {
-                        Email: userEmail,
-                        Name: results[0].nickname
-                    }
-
-                    const JSONData = JSON.stringify(req.session.data)
-                    console.log("json in login" + JSONData);
-                    const insertQuery = process.env.QUERY_SESSION_INSERT
-                    console.log(req.session.cookie);
-                    connection.query(insertQuery,[req.sessionID, req.session.cookie._expires, JSONData] , (err) => {
-                        if(err) {
-                            console.log(err);
-                            res.status(500).json({ errno: err.errno, message: err.code })
-                        }
-                    })
-                }
-                // If the session was recovered from the DB
-                // Update it just in case (most of the times it should not be different)
-                req.session.data.user = {
-                    Email: results[0].email,
-                    Name: results[0].nickname
-                }
-                
-                console.log(req.sessionID);
-                console.log(req.session);
-                res.status(200).json({ message: 'Successfully logged in' });
-            }
-
-            console.log("Releasing connection...");
-            connection.release();
-        });
+        req.session.data.user = result
+        res.status(200).json({ message: "Successfully logged in" })
+    }).catch((err) => {
+        console.log(err);
+        res.status(500).json({ message: "Something went wrong", code: err.code })
     });
+})
 
+loginRouter.get('/current-user', async (req, res) => {
+    if(req.session.data.user == undefined || req.session.data.user == null) {
+        res.status(403).json({ message: 'User not logged in' })
+        return
+    }
     
-});
+    
+    db.User.findOne({ where: { email: req.session.data.user.email } })
+    .then((result) => {
 
-const checkPassword = async (password, hashedPassword) => {
-    return await bcrypt.compare(password, hashedPassword)
-};
-module.exports = loginRouter;
+        const returned = {
+            id: result.id,
+            email: result.email,
+            nickname: result.nickname,
+            pfp_path: result.pfp_path
+        }
+
+        res.status(200).json(returned)
+        return
+    }).catch((err) => {
+        console.log(err);
+        res.status(500).json({ message: 'Fetch failed' })
+        return
+    });
+})
+module.exports = loginRouter

@@ -1,39 +1,25 @@
-const express = require('express');
-const bcrypt = require('bcrypt');
-const registerRouter = express.Router();
-const passwordHasher = require('../Middleware/passwordHasher.js');
+const express = require('express')
+const registerRouter = express.Router()
+const passwordHasher = require('../Middleware/passwordHasher.js')
+const db = require('../Sequelize/models')
 
+//FIXME: redo Quering
 
-const registerQuery = process.env.QUERY_REGISTER;
-registerRouter.use(passwordHasher);
+const registerQuery = process.env.QUERY_REGISTER
+registerRouter.use(passwordHasher)
 
 registerRouter.post('/register', (req, res) => {
-    const userEmail = req.body.userEmail;
-    const userName = req.body.userName;
-    const userPassword = req.body.userPassword;
-    const pfpPath = process.env.DEFAULT_PFP_PATH;
+    const userEmail = req.body.userEmail
+    const userName = req.body.userName
+    const userPassword = req.body.userPassword
 
-    const pool = req.app.locals.pool;
-    pool.getConnection((err, connection) => {
-        if(err) {
-            console.log(err);
-            throw err;
-        }
+    const user = db.User.create({
+        email: userEmail,
+        nickname: userName,
+        password: userPassword
+    })
+    req.session.data.user = user
+    res.status(200).json({message: 'User created successfully!'})
+})
 
-        connection.query(registerQuery, [userEmail, userName, userPassword, pfpPath], (err) => {
-            console.log("Releasing connection...");
-            connection.release();
-            
-            if (err) {
-                //handles response for general error
-                res.status(500).json({ errno: err.errno, message: err.code });
-                //throw err;
-            }
-            else {
-                res.status(200).json({ message: 'Successfully registered' });
-            }
-        });
-    });
-});
-
-module.exports = registerRouter;
+module.exports = registerRouter

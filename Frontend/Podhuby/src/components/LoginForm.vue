@@ -4,18 +4,26 @@
         <InputField @onValidate="validationHandler" ref="email" name="userEmail" label="Email" type="email" placeholder="gmail@gmail.com" :pattern="emailRegex" errmsg="Enter a valid email address!" />
         <InputField @onValidate="validationHandler" ref="password" name="userPassword" label="Password" type="password" placeholder="he!w1Af6" :pattern="passwordRegex" errmsg="A password can only be alphanumeric and between 6 to 22 characters!" />
         <span v-show="results.message !== ''" class="result-msg"> {{ results.message }} </span>
-        <button :disabled="isValid === 'false'" @click="login" type="submit" class="submit-btn">Login</button>
-        <router-link class="form-other" to="/register">Register</router-link>
+        <button :disabled="isValid === 'false'" @click="login" type="submit" class="submit-btn hover-highlight">Login</button>
+        <!-- <router-link class="form-other" to="/register">Register</router-link> -->
     </div>
 </template>
 
 <script>
 import InputField from './InputField.vue'
 import axios from 'axios';
+import  { useUserStore } from '../stores/userStore'
 
 export default {
     name: 'LoginForm',
     components: { InputField },
+    setup() {
+        const userStore = useUserStore()
+
+        return {
+        userStore
+        }
+    },
     data() {
         return {
             results: [],
@@ -40,12 +48,31 @@ export default {
                 userPassword:this.userPassword
             }
             
-            axios.post('/login', formData, {headers: {'Content-Type': 'application/x-www-form-urlencoded', withCredentials: true}, baseURL: '/users'})
+            axios.post('/users/login', formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded', withCredentials: true }, baseURL: '/api'})
             .then((res) => {
+                if(res.status == 200) {
+                    axios.get('/users/current-user', { header: { withCredentials: true }, baseURL: '/api' })
+                    .then((result) => {
+                        if(result == null || result == undefined) {
+                            this.userStore.setUser(null)
+                            console.log('set to null');
+                        }
+                        console.log(result);
+                        this.userStore.setUser(result.data)
+                    }).catch((err) => {
+                        console.log(err);
+                        this.userStore.setUser(null)
+                        console.log('set to null');
+                        throw err
+                    });
+                    
+                    //this.$router.push('/')
+                }
                 this.results = res.data
             })
             .catch((err) => {
                 console.log(err);
+                this.results.message = err.response.data.message
             })
         },
         validationHandler() {
@@ -69,7 +96,6 @@ h2.form-heading {
 }
 button.submit-btn {
     font-family: 'Comfortaa', sans-serif;
-
     box-shadow: 4px 4px 0 0 var(--accent-color);
     background-color: black;
     color: white;
@@ -88,6 +114,7 @@ span.result-msg {
 a.form-other {
     margin-left: 20px;
     text-decoration: none;
-    border-bottom: 2px dotted var(--accent-color);
+    border-bottom: 2px dotted var(--tertiary-color);
+    color: var(--tertiary-color);
 }
 </style>

@@ -1,0 +1,106 @@
+@tailwind base;
+
+@tailwind components;
+
+@tailwind utilities;
+
+.podcast-header {
+    font-weight: 700;
+    font-family: 'Oswald', sans-serif;
+}
+.header-border {
+    outline-offset: 32px;
+    border-top-left-radius: 33%;
+    border-top-right-radius: 80%;
+    border-bottom-left-radius: 90px;
+    border-bottom-right-radius: 33%;
+}
+@media screen and (max-width: 640px) {
+    .header-border {
+        outline-offset: 16px;
+        border-top-left-radius: 33%;
+        border-top-right-radius: 80%;
+        border-bottom-left-radius: 90px;
+        border-bottom-right-radius: 33%;
+    }
+}
+.podcast-p-shadow {
+    text-shadow: 1px 1.5px var(--accent-color);
+}
+.rotate-n-90 {
+    transform: rotate(-90deg);
+}
+.separator-col {
+    border-top: 2px dashed var(--accent-color);
+}
+div.main-grid {
+    column-count: 3;
+    column-gap: 8rem;
+    margin-top: 0.3125rem;
+    break-inside: avoid;
+}
+section.main-page-content {
+    margin-left: auto;
+    margin-right: auto;
+    width: 70%;
+}
+div.grid-item {
+    padding: 1%;
+    background-color: var(--accent-color);
+}
+.card-heading {
+    margin: 0.625rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.card-heading > img {
+    border-radius: 25%;
+    height: 2.5rem;
+    width: 2.5rem;
+    background-color: white;
+}
+.card-heading > h3 {
+    margin: 0.6875rem 0rem 0.625rem 0.3125rem;
+    font-family: 'Oswald', sans-serif;
+    text-transform: uppercase;
+    border-bottom: 2px black dotted;
+}
+.submit-btn-min {
+    font-family: 'Comfortaa', sans-serif;
+    box-shadow: 4px 4px 0 0 var(--accent-color);
+    background-color: black;
+    color: white;
+}
+img.card-heart {
+    height: 1.5rem;
+    width: 1.5rem;
+    box-sizing: initial;
+}
+.card-description {
+    padding: 0% 5%;
+    font-weight: 600;
+    text-align: center;
+}
+.card-reactions {
+    display: flex;
+    padding: 0.3125rem;
+    justify-content: center;
+    align-items: center;
+}
+.card-reactions > img {
+    padding: 0.625rem 0.9375rem;
+}
+.card-reactions > span {
+    border-bottom: 2px black dotted;
+}
+.card-root {
+    border-radius: 0.6875rem;
+    box-shadow: 1rem 1rem 0 0.3125rem var(--accent-color);
+    background-color: var(--tertiary-color);
+    min-height: 200px;
+    transition: transform 0.3s ease-in-out;
+    margin-bottom: 2rem;
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+}

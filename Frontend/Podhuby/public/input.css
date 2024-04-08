@@ -34,10 +34,10 @@
     border-top: 2px dashed var(--accent-color);
 }
 div.main-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8rem;
+    column-count: 3;
+    column-gap: 8rem;
     margin-top: 0.3125rem;
+    break-inside: avoid;
 }
 section.main-page-content {
     margin-left: auto;
@@ -66,6 +66,12 @@ div.grid-item {
     text-transform: uppercase;
     border-bottom: 2px black dotted;
 }
+.submit-btn-min {
+    font-family: 'Comfortaa', sans-serif;
+    box-shadow: 4px 4px 0 0 var(--accent-color);
+    background-color: black;
+    color: white;
+}
 img.card-heart {
     height: 1.5rem;
     width: 1.5rem;
@@ -92,4 +98,9 @@ img.card-heart {
     border-radius: 0.6875rem;
     box-shadow: 1rem 1rem 0 0.3125rem var(--accent-color);
     background-color: var(--tertiary-color);
+    min-height: 200px;
+    transition: transform 0.3s ease-in-out;
+    margin-bottom: 2rem;
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
 }

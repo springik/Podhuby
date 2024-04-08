@@ -96,7 +96,6 @@ h2.form-heading {
 }
 button.submit-btn {
     font-family: 'Comfortaa', sans-serif;
-
     box-shadow: 4px 4px 0 0 var(--accent-color);
     background-color: black;
     color: white;

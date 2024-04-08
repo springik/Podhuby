@@ -72,6 +72,13 @@
         <div class="flex justify-center">
             <hr class="my-4 lg:my-6 w-3/4 lg:w-2/3 separator-col">
         </div>
+        <!-- Comment add --->
+        <div v-if="userStore.user !== null" class="flex flex-col justify-center items-center">
+            <textarea class="h-48 lg:w-96 w-64 outline-white outline-dotted outline-2 bg-mainColor outline-offset-8 m-8 resize-none text-white text-base" />
+            <button class="submit-btn-min mb-4 lg:mb-8 p-2">
+                Submit
+            </button>
+        </div>
         <!-- Comment section -->
         <section class="text-white">
             <Comment />
@@ -83,6 +90,7 @@
 import axios from 'axios';
 import Comment from '../components/Comment.vue'
 import { usePodcastStore } from '../stores/podcastStore'
+import { useUserStore } from '../stores/userStore'
 
 export default {
     name: 'Podcast',
@@ -94,9 +102,11 @@ export default {
     },
     setup() {
         const podcastStore = usePodcastStore()
+        const userStore = useUserStore()
 
         return {
-            podcastStore
+            podcastStore,
+            userStore
         }
     },
     mounted() {

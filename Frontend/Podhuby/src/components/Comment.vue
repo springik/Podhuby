@@ -22,6 +22,18 @@
                         </div>
                     </div>
                 </div>
+                <div class="gap-4 flex justify-center flex-row">
+                    <div>
+                        <button class="submit-btn-min p-2 ">
+                            <img class="w-6 h-6" src="/reply.png" alt="reply">
+                        </button>
+                    </div>
+                    <div>
+                        <button class="submit-btn-min p-2">
+                            Like
+                        </button>
+                    </div>
+                </div>
             </div>
             <!-- toggle --->
             <button @click="toggle" class="text-white ml-5 lg:ml-80">

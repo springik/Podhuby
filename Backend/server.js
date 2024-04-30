@@ -25,6 +25,7 @@ const loginRouter = require('./routes/login')
 const registerRouter = require('./routes/register')
 const podcastsRouter = require('./routes/podcasts.js')
 const userDataRouter = require('./routes/userdata.js')
+const commentsRouter = require('./routes/comments.js')
 
 app.use('/users', cors(corsOptions), loginRouter, registerRouter)
-app.use('/podcasts', podcastsRouter)
+app.use('/podcasts', podcastsRouter, commentsRouter)

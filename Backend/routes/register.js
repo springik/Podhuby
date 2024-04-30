@@ -3,9 +3,6 @@ const registerRouter = express.Router()
 const passwordHasher = require('../Middleware/passwordHasher.js')
 const db = require('../Sequelize/models')
 
-//FIXME: redo Quering
-
-const registerQuery = process.env.QUERY_REGISTER
 registerRouter.use(passwordHasher)
 
 registerRouter.post('/register', (req, res) => {

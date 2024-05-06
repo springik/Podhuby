@@ -12,6 +12,7 @@ module.exports = {
       root_id: {
         type: Sequelize.INTEGER,
         allowNull: true,
+        onDelete: 'CASCADE',
         references: {
           model: 'Comments',
           key: 'id'

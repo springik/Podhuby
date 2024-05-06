@@ -19,6 +19,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'root_id',
         as: 'parent'
       })
+      this.belongsTo(models.User, {
+        foreignKey: 'author_id',
+        as: 'author',
+        onDelete: 'CASCADE'
+      })
     }
   }
   Comment.init({

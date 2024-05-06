@@ -4,10 +4,14 @@ const commentsRouter = express.Router()
 
 
 commentsRouter.get('/get-comments/:podcastId', async (req, res) => {
-    const podcastId = req.params.podcastId
+    const { podcastId } = req.params
+    const { lastSeenString, limit, rootId } = req.body
+    
+
     try
     {
-        const comments = await db.sequelize.query(`SELECT c1.*, array_agg(c2) as replies
+        /*
+        const comments = awat db.sequelize.query(`SELECT c1.*, array_agg(c2) as replies
         FROM "Comments" c1
         LEFT JOIN "Comments" c2 ON c1.id = c2.root_id
         GROUP BY c1.id
@@ -20,6 +24,51 @@ commentsRouter.get('/get-comments/:podcastId', async (req, res) => {
         })
 
         res.status(200).json(response)
+        */
+       let comments = []
+
+        if(lastSeenString === "") {
+            comments = await db.Comment.findAndCountAll({
+                where: {
+                  podcast_id: podcastId,
+                  root_id: rootId
+                },
+                limit,
+                order: [['createdAt', 'DESC']],
+                include: [{
+                  model: db.User,
+                  as: 'author'
+                }]
+              })
+        }
+        else
+        {
+            const lastSeen = new Date(lastSeenString).getTime()
+            comments = await db.Comment.findAndCountAll({
+                where: {
+                  podcast_id: podcastId,
+                  created_at: {
+                    [db.Sequelize.Op.lt]: lastSeen
+                  },
+                  root_id: rootId
+                },
+                limit,
+                order: [['createdAt', 'DESC']],
+                include: [{
+                  model: db.User,
+                  as: 'author'
+                }]
+              })
+        }
+
+
+          if(comments.length === 0)
+          {
+            res.status(403).json({ message: 'No comments found' })
+            return
+          }
+
+          res.status(200).json(comments)
     }
     catch (err)
     {
@@ -32,7 +81,7 @@ commentsRouter.get('/get-comments/:podcastId', async (req, res) => {
 commentsRouter.post('/submit/comment', async (req, res) => {
 
     if(req.session.data.user === undefined || req.session.data.user === null) {
-        res.status(403).json({ message: 'Try loging in' })
+        res.status(404).json({ message: 'Try loging in' })
         return
     }
     const { podcastId, rootId, content } = req.body
@@ -75,6 +124,24 @@ commentsRouter.patch('/edit/comment', async (req, res) => {
     {
         
     }
+})
+
+commentsRouter.delete('/comment', async (req, res) => {
+  const { commentId } = req.body
+
+  try {
+    const comment = await db.Comment.findByPk(commentId)
+    if(comment === undefined || comment === null) {
+      res.status(404).json({ message: 'No comment found to delete' })
+    }
+
+    await comment.destroy()
+    res.status(200).json({ message: 'Comment deleted successfully' })
+  }
+  catch (err) {
+    console.log(err);
+    res.status(500).json({ message: 'Something went wrong' })
+  }
 })
 
 module.exports = commentsRouter

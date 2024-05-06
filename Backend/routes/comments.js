@@ -103,17 +103,23 @@ commentsRouter.patch('/edit/comment', async (req, res) => {
 
     if(req.session.data.user === undefined || req.session.data.user === null)
     {
-        res.status(403).json({ message: 'Try logging in' })
-        return
+      res.status(403).json({ message: 'Try logging in' })
+      return
     }
 
     try
     {
-        const comm = await db.Comment.findByPk(commentId)
-        if(comm === undefined || comm === null) {
-            res.status(404).json({ message: 'Comment not found' })
-            return
+      //const comm = await db.Comment.findByPk(commentId)
+      const comm = await db.Comment.findOne({
+        where: {
+          id: commentId,
+          author_id: req.session.data.user.id
         }
+      })
+      if(comm === undefined || comm === null) {
+        res.status(404).json({ message: 'Comment not found' })
+        return
+      }
 
         comm.set({ content: content })
         await comm.save()
@@ -122,17 +128,30 @@ commentsRouter.patch('/edit/comment', async (req, res) => {
     }
     catch (err)
     {
-        
+        console.log(err);
+        res.status(500).json({ message: 'Something went wrong' })
     }
 })
 
 commentsRouter.delete('/comment', async (req, res) => {
+  if(req.session.data.user === undefined || req.session.data.user === null) {
+    res.status(403).json({ message: 'Try logging in' })
+    return
+  }
   const { commentId } = req.body
+  console.log(req.session.data.user);
 
   try {
-    const comment = await db.Comment.findByPk(commentId)
+    //const comment = await db.Comment.findByPk(commentId)
+    const comment = await db.Comment.findOne({
+      where: {
+        id: commentId,
+        author_id: req.session.data.user.id
+      }
+    })
     if(comment === undefined || comment === null) {
       res.status(404).json({ message: 'No comment found to delete' })
+      return
     }
 
     await comment.destroy()

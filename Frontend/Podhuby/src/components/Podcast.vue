@@ -45,12 +45,12 @@
             <div class="flex flex-row justify-center items-top gap-12 p-4">
                 <div v-if="podcastData.youtube_link != null" class="py-4">
                     <a :href="podcastData.youtube_link">
-                        <img class="w-28" src="C:\Users\risaf\Downloads/meowdy.jpg" alt="youtube link">
+                        <img class="w-28" src="/meowdy.jpg" alt="youtube link">
                     </a>
                 </div>
                 <div v-if="podcastData.spotify_link != null" class="py-4">
                     <a href="#">
-                        <img class="w-28" src="C:\Users\risaf\Downloads/meowdy.jpg" alt="spotify link">
+                        <img class="w-28" src="/meowdy.jpg" alt="spotify link">
                     </a>
                 </div>
             </div>

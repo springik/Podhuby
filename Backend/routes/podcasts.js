@@ -179,7 +179,7 @@ GROUP BY p.id;`
   }
 })
 podcastsRouter.get('/:podcastId(\\d+)', (req, res) => {
-    
+  
 })
 podcastsRouter.post('/favourite/:podcastId', async (req, res) => {
   if(req.session.data.user == undefined || req.session.data.user == null) {
@@ -215,88 +215,95 @@ podcastsRouter.post('/favourite/:podcastId', async (req, res) => {
 podcastsRouter.post('/youtube/submit', async (req, res) => {
   const channelHandle = req.body.channelHandle
   const url = `https://www.googleapis.com/youtube/v3/channels?part=snippet&forHandle=${channelHandle}&key=${process.env.YOUTUBE_API_KEY}`
-  const userGenres = req.body.genres
-  let podcastData
+  const userGenres = req.body.genres.map((g) => g.toLowerCase())
 
   try {
-    const result = await axios.get(url)
-    podcastData = result.data.items.map((podcast) => {
-      return {
-        title: podcast.snippet.title,
-        description: podcast.snippet.description,
-        pfp_path: podcast.snippet.thumbnails.default.url,
-        youtube_link: "https://youtube.com/" + podcast.snippet.customUrl
+    const dataFromYtb = await axios.get(url)
+    const podcastData = {
+      title: dataFromYtb.data.items[0].snippet.title,
+      description: dataFromYtb.data.items[0].snippet.description,
+      youtube_link: "https://youtube.com/" + dataFromYtb.data.items[0].snippet.customUrl,
+      spotify_link: null,
+      third_link: null,
+      image_path: dataFromYtb.data.items[0].snippet.thumbnails.default.url
+    }
+    // Create a transaction
+    const transaction = await db.sequelize.transaction();
+    try {
+      // Create the podcast
+      const podcast = await db.Podcast.create(podcastData, { transaction });
+      // Create or find genres and associate with podcast
+      const genrePromises = userGenres.map(async (genreName) => {
+        const [genre, created] = await db.Genre.findOrCreate({
+          where: { name: genreName },
+          defaults: { name: genreName },
+          transaction
+        });
+        return genre.id
+      });
+      const genreIds = await Promise.all(genrePromises)
+      //console.log(genreIds);
+      await podcast.save()
+      await podcast.setGenres(genreIds, { transaction })
+      // Commit the transaction
+      await transaction.commit();
+      res.status(201).json(podcast);
+    } catch (error) {
+      // Rollback the transaction
+      await transaction.rollback();
+      console.error(error);
+      res.status(500).json({ message: 'Error creating podcast' });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error creating podcast' });
+  }
+
+  /*
+  try
+  {
+    const dataFromYtb = await axios.get(url)
+    const podcastData = {
+      title: dataFromYtb.data.items[0].snippet.title,
+      description: dataFromYtb.data.items[0].snippet.description,
+      youtube_link: "https://youtube.com/" + dataFromYtb.data.items[0].snippet.customUrl,
+      spotify_link: null,
+      third_link: null,
+      image_path: dataFromYtb.data.items[0].snippet.thumbnails.default.url
+    }
+
+    // Unique check just in case :p
+    const p = await db.Podcast.findOne({
+      where:
+      {
+        title: podcastData.title
       }
     })
-  }
-  catch(err) {
-    console.log(err);
-    res.status(500).json({ message: "Server error" })
-    return
-  }
-  
-  const genres = await getGenresFromDB(userGenres)
-  if(genres == null) {
-    res.status(500).json({ message: "Server error" })
-    return
-  }
-
-
-  let toBeInserted = []
-  userGenres.forEach((element) => {
-    if(!genres.some((item) => item.dataValues.name === element)) {
-      toBeInserted.push(element)
-    }
-  })
-  const insertGenrePromise = new Promise((resolve, reject) => {
-    toBeInserted.forEach((item) => {
-      db.Genre.create({
-        name: item
-      })
-      .then((result) => {
-        genres.push(result)
-      })
-      .catch((err) => {
-        console.log(err);
-        reject()
-        res.status(500).json({ message: "Server error" })
-      });
-    })
-    resolve()
-  })
-
-  insertGenrePromise
-  .then(async () => {
-    let podcast
-    try {
-      podcast = await db.Podcast.create({
-        title: podcastData[0].title,
-        description: podcastData[0].description,
-        image_path: podcastData[0].pfp_path,
-        youtube_link: podcastData[0].youtube_link
-      })
-    }
-    catch(err) {
-      console.log(err);
-      res.status(500).json({ message: "Server error" })
+    if(p){
+      res.status(409).json({ message: 'Podcast already exists' })
       return
     }
+    const podcast = await db.Podcast.create(podcastData)
+    
+    const genrePromises = userGenres.map(async (genreName) => {
+      const [genre, created] = await db.Genre.findOrCreate({
+        where: { name: genreName },
+        defaults: { name: genreName },
+      });
+      await podcast.addGenre(genre);
+    });
 
-    console.log("Created podcast", podcast);
+    await Promise.all(genrePromises)
 
-    const joinTablePromise = genres.map(async (genre) => {
-      console.log("Current genre", genre);
-      await db.sequelize.query('insert into "Podcast_Genres" values($podcast, $genre)', { bind: { podcast: podcast.dataValues.id, genre: genre.dataValues.id }, type: QueryTypes.INSERT})
-    })
-    await Promise.all(joinTablePromise)
-    res.status(200).json({ message: "Podcast created successfully" })
-    return
-  })
-  .catch((err) => {
+    res.status(200).json(podcast)
+  }
+  catch (err)
+  {
     console.log(err);
-    res.status(500).json({ message: "Server error" })
-    return
-  });
+    res.status(500).json({ message: 'Server error' })
+  }
+  */
+
 
   })
 podcastsRouter.post('/spotify/submit', async (req, res) => {
@@ -327,5 +334,21 @@ const getSpotifyToken = async () => {
     console.log(err);
     throw err
   }
+}
+const bulkFindOrCreateGenres = async (model, data) => {
+  const records = await Promise.all(data.map(async (dataEntry) => {
+    const [genre, created] = await model.findOrCreate({
+      where: { name: dataEntry }
+    });
+    if (created) {
+      await genre.save();
+    }
+    return genre;
+  }));
+  return records;
+}
+
+const getUniqueItems =(a, b) => {
+  return a.filter(element => !b.includes(element))
 }
 module.exports = podcastsRouter

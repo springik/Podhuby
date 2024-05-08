@@ -5,8 +5,10 @@ const commentsRouter = express.Router()
 
 commentsRouter.get('/get-comments/:podcastId', async (req, res) => {
     const { podcastId } = req.params
-    const { lastSeenString, limit, rootId } = req.body
-    
+    const { lastSeenString, limit } = req.query
+    let { rootId } = req.query
+    if(rootId === "")
+      rootId = null
 
     try
     {
@@ -44,6 +46,7 @@ commentsRouter.get('/get-comments/:podcastId', async (req, res) => {
         else
         {
             const lastSeen = new Date(lastSeenString).getTime()
+
             comments = await db.Comment.findAndCountAll({
                 where: {
                   podcast_id: podcastId,

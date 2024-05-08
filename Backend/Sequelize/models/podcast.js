@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       this.belongsToMany(models.Tag, {through: 'Podcast_Tags'})
       this.belongsToMany(models.User, {through: 'User_favourite_Podcasts'})
-      this.belongsToMany(models.Genre, {through: 'Podcast_Genres'})
+      this.belongsToMany(models.Genre, {through: 'Podcast_Genres', foreignKey: 'podcast_id', otherKey: 'genre_id'})
     }
   }
   Podcast.init({

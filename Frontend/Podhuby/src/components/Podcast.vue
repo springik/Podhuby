@@ -97,7 +97,8 @@ export default {
     components: { Comment },
     data() {
         return {
-            podcastData: {  }
+            podcastData: {  },
+            lastSeenString: ""
         }
     },
     setup() {
@@ -113,9 +114,11 @@ export default {
         const isInStore = this.podcastStore.getByName(this.$route.params.title) === undefined
 
         if(isInStore)
-            this.getPodcast();
+            this.getPodcast()
 
         this.podcastData = this.podcastStore.getByName(this.$route.params.title)
+
+        //this.getComments(10)
     },
     methods: {
         async getPodcast() {
@@ -129,6 +132,22 @@ export default {
             catch (err)
             {
                 console.log(err);
+            }
+        },
+        async getComments(limit) {
+            try
+            {
+                const data =
+                `
+                    "lastSeenString": ${ this.lastSeenString },
+                    "rootId": "",
+                    "limit": ${ limit }
+                `
+                const result = await axios.get('/podcasts/get-comments', data, { header: { withCredentials: true }, params: data, baseURL: '/api' })
+            }
+            catch (err)
+            {
+                
             }
         }
     }

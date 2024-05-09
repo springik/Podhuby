@@ -45,12 +45,12 @@
             <div class="flex flex-row justify-center items-top gap-12 p-4">
                 <div v-if="podcastData.youtube_link != null" class="py-4">
                     <a :href="podcastData.youtube_link">
-                        <img class="w-28" src="/meowdy.jpg" alt="youtube link">
+                        <img class="w-28" src="/youtube-logo.png" alt="youtube link">
                     </a>
                 </div>
                 <div v-if="podcastData.spotify_link != null" class="py-4">
                     <a href="#">
-                        <img class="w-28" src="/meowdy.jpg" alt="spotify link">
+                        <img class="w-28" src="/spotify-logo.png" alt="spotify link">
                     </a>
                 </div>
             </div>
@@ -81,7 +81,7 @@
         </div>
         <!-- Comment section -->
         <section class="text-white">
-            <Comment />
+            <Comment v-for="comment in comments" :data="comment" :key="comment.id" />
         </section>
     </section>
 </template>
@@ -98,7 +98,10 @@ export default {
     data() {
         return {
             podcastData: {  },
-            lastSeenString: ""
+            comments: [],
+            lastSeenString: "",
+            pageCount: 0,
+            limit: 10
         }
     },
     setup() {
@@ -110,44 +113,74 @@ export default {
             userStore
         }
     },
-    mounted() {
-        const isInStore = this.podcastStore.getByName(this.$route.params.title) === undefined
+    async mounted() {
+        const notInStore = this.podcastStore.getByName(this.$route.params.title) !== null || this.podcastStore.getByName(this.$route.params.title) !== undefined
+        if(notInStore) {
+            const url = `/podcasts/${ this.$route.params.title }`
+            const result = await axios.get(url, { header: { withCredentials: true }, baseURL: '/api' })
 
-        if(isInStore)
-            this.getPodcast()
+            this.podcastData = result.data[0]
+            this.podcastStore.addPodcast(this.podcastData)
+        }
 
-        this.podcastData = this.podcastStore.getByName(this.$route.params.title)
-
-        //this.getComments(10)
-    },
-    methods: {
-        async getPodcast() {
+        console.log('getting comments');
             try
             {
-                const url = `/podcasts/${ this.$route.params.title }`
+                const data = {
+                    lastSeenString: this.lastSeenString,
+                    rootId: "",
+                    limit: this.limit
+                }
 
-                const result = await axios.get(url, { header: { withCredentials: true }, baseURL: '/api' })
-                this.podcastStore.addPodcast(result.data[0])
+                const url = `/podcasts/get-comments/${this.podcastData.id}`
+                const result = await axios.get(url, { header: { withCredentials: true }, params: data, baseURL: '/api' })
+                console.log(result);
+                this.pageCount = result.data.count / this.limit
+                this.comments = result.data.rows
             }
             catch (err)
             {
                 console.log(err);
             }
+    },
+    methods: {
+        async getPodcast(stored) {
+            if(!stored) {
+                try
+                {
+                    const url = `/podcasts/${ this.$route.params.title }`
+
+                    const result = await axios.get(url, { header: { withCredentials: true }, baseURL: '/api' })
+                    console.log(result);
+                    this.podcastStore.addPodcast(result.data[0])
+                    this.podcastData = result.data[0]
+                }
+                catch (err)
+                {
+                    console.log(err);
+                }
+            }
+            
         },
         async getComments(limit) {
+            console.log('getting comments');
             try
             {
                 const data =
                 `
                     "lastSeenString": ${ this.lastSeenString },
-                    "rootId": "",
+                    "rootId": ,
                     "limit": ${ limit }
                 `
-                const result = await axios.get('/podcasts/get-comments', data, { header: { withCredentials: true }, params: data, baseURL: '/api' })
+                const url = `/podcasts/get-comments/${this.podcastData.id}`
+                const result = await axios.get(url, { header: { withCredentials: true }, params: data, baseURL: '/api' })
+                console.log(result);
+                this.pageCount = result.count / limit
+                this.comments = result.rows
             }
             catch (err)
             {
-                
+                //console.log(err);
             }
         }
     }

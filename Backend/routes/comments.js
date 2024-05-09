@@ -70,7 +70,7 @@ commentsRouter.get('/get-comments/:podcastId', async (req, res) => {
             res.status(403).json({ message: 'No comments found' })
             return
           }
-
+          console.log(comments);
           res.status(200).json(comments)
     }
     catch (err)

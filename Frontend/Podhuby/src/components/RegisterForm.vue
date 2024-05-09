@@ -46,7 +46,7 @@ export default {
             }
             console.log(formData);
             
-            axios.post('/register', formData, {headers: {'Content-Type': 'application/x-www-form-urlencoded', withCredentials: true}, baseURL: '/users'})
+            axios.post('/users/register', formData, {headers: {'Content-Type': 'application/x-www-form-urlencoded', withCredentials: true}, baseURL: '/api'})
             .then((res) => {
                 if(res.status == 200)
                     this.$router.push('/login')
@@ -54,10 +54,7 @@ export default {
             })
             .catch((err) => {
                 console.log(err)
-                if(err.response.data.message == 'ER_DUP_ENTRY')
-                    this.results.message = 'User already registered!'
-                else
-                    this.results.message = err.response.data.message
+                this.results.message = err.response.data.message
             })
         },
         validationHandler() {

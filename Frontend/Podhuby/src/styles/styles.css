@@ -556,14 +556,6 @@ video {
   margin: 2rem;
 }
 
-.m-80 {
-  margin: 20rem;
-}
-
-.m-64 {
-  margin: 16rem;
-}
-
 .my-12 {
   margin-top: 3rem;
   margin-bottom: 3rem;
@@ -615,12 +607,20 @@ video {
   margin-left: 1.25rem;
 }
 
+.ml-8 {
+  margin-left: 2rem;
+}
+
 .ml-64 {
   margin-left: 16rem;
 }
 
-.ml-72 {
-  margin-left: 18rem;
+.ml-3 {
+  margin-left: 0.75rem;
+}
+
+.mt-20 {
+  margin-top: 5rem;
 }
 
 .block {
@@ -647,6 +647,10 @@ video {
   height: 12rem;
 }
 
+.h-6 {
+  height: 1.5rem;
+}
+
 .h-7 {
   height: 1.75rem;
 }
@@ -655,20 +659,8 @@ video {
   height: 100%;
 }
 
-.h-16 {
-  height: 4rem;
-}
-
-.h-8 {
-  height: 2rem;
-}
-
-.h-4 {
-  height: 1rem;
-}
-
-.h-6 {
-  height: 1.5rem;
+.h-10 {
+  height: 2.5rem;
 }
 
 .max-h-64 {
@@ -699,32 +691,24 @@ video {
   width: 1rem;
 }
 
-.w-7 {
-  width: 1.75rem;
-}
-
-.w-96 {
-  width: 24rem;
-}
-
-.w-full {
-  width: 100%;
+.w-6 {
+  width: 1.5rem;
 }
 
 .w-64 {
   width: 16rem;
 }
 
-.w-16 {
-  width: 4rem;
+.w-7 {
+  width: 1.75rem;
 }
 
-.w-8 {
-  width: 2rem;
+.w-full {
+  width: 100%;
 }
 
-.w-6 {
-  width: 1.5rem;
+.w-10 {
+  width: 2.5rem;
 }
 
 .select-none {
@@ -769,20 +753,12 @@ video {
   align-items: stretch;
 }
 
-.justify-start {
-  justify-content: flex-start;
-}
-
 .justify-center {
   justify-content: center;
 }
 
 .justify-between {
   justify-content: space-between;
-}
-
-.justify-around {
-  justify-content: space-around;
 }
 
 .gap-12 {
@@ -1162,8 +1138,16 @@ img.card-heart {
     margin-bottom: 0.625rem;
   }
 
+  .lg\:mb-8 {
+    margin-bottom: 2rem;
+  }
+
   .lg\:ml-20 {
     margin-left: 5rem;
+  }
+
+  .lg\:ml-5 {
+    margin-left: 1.25rem;
   }
 
   .lg\:ml-80 {
@@ -1174,8 +1158,12 @@ img.card-heart {
     margin-right: 5rem;
   }
 
-  .lg\:mb-8 {
-    margin-bottom: 2rem;
+  .lg\:ml-12 {
+    margin-left: 3rem;
+  }
+
+  .lg\:ml-64 {
+    margin-left: 16rem;
   }
 
   .lg\:flex {
@@ -1192,6 +1180,10 @@ img.card-heart {
 
   .lg\:h-12 {
     height: 3rem;
+  }
+
+  .lg\:h-20 {
+    height: 5rem;
   }
 
   .lg\:w-1\/2 {
@@ -1220,6 +1212,18 @@ img.card-heart {
 
   .lg\:w-96 {
     width: 24rem;
+  }
+
+  .lg\:w-1\/3 {
+    width: 33.333333%;
+  }
+
+  .lg\:w-5 {
+    width: 1.25rem;
+  }
+
+  .lg\:w-20 {
+    width: 5rem;
   }
 
   .lg\:grid-cols-4 {

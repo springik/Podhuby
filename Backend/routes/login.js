@@ -3,10 +3,15 @@ const bcrypt = require('bcrypt')
 const loginRouter = express.Router()
 const sessionPreparer = require('../Middleware/sessionPreparer.js')
 const db = require('../Sequelize/models')
-
+const { body, validationResult } = require('express-validator')
 loginRouter.use(sessionPreparer)
 
-loginRouter.post('/login', (req, res) => {
+loginRouter.post('/login',body('userEmail').isEmail().normalizeEmail(), body('userPassword').isLength({ min: 6, max: 22 }) , (req, res) => {
+    const errs = validationResult(req)
+    if(!errs.isEmpty()) {
+        return res.status(400).json({ message: 'Invalid fields' })
+    }
+
     if(req.session.data.user != undefined || req.session.data.user != null) {
         res.status(200).json({ message: "Successfully logged in" })
         return

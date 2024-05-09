@@ -2,10 +2,12 @@ const express = require('express')
 const session = require('express-session')
 const cors = require('cors')
 const bodyParser = require('body-parser')
+const path = require('path')
 require('dotenv').config()
 
 const app = express()
 
+app.use('/pfps' , express.static(path.join(__dirname + '/public/Images/pfps')))
 app.use(express.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(session({

@@ -17,7 +17,12 @@ export const usePodcastStore = defineStore('podcast-store', {
     },
     getters: {
         getByName: (state) => {
-            return (name) => state.podcasts.find((podcast) => podcast.title === name)
+            return (name) => {
+                if(state.podcasts.length > 0)
+                    state.podcasts.find((podcast) => podcast.title === name)
+                else
+                    return null
+            }
         }
     }
 })

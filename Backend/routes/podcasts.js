@@ -147,8 +147,8 @@ SELECT
 FROM "Podcasts" p
 JOIN "Podcast_Genres" pg ON p.id = pg.podcast_id
 JOIN "Genres" g ON pg.genre_id = g.id
-JOIN "Podcast_Tags" pt ON p.id = pt.podcast_id
-JOIN "Tags" t ON pt.tag_id = t.id
+LEFT JOIN "Podcast_Tags" pt ON p.id = pt.podcast_id
+LEFT JOIN "Tags" t ON pt.tag_id = t.id
 WHERE p.title = :title
 GROUP BY p.id;`
 

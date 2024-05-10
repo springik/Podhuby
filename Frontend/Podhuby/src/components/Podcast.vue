@@ -74,14 +74,16 @@
         </div>
         <!-- Comment add --->
         <div v-if="userStore.user !== null" class="flex flex-col justify-center items-center">
-            <textarea class="h-48 lg:w-96 w-64 outline-white outline-dotted outline-2 bg-mainColor outline-offset-8 m-8 resize-none text-white text-base" />
-            <button class="submit-btn-min mb-4 lg:mb-8 p-2">
+            <textarea v-model="commentAddContent" class="h-48 lg:w-96 w-64 outline-white outline-dotted outline-2 bg-mainColor outline-offset-8 m-8 resize-none text-white text-base" />
+            <button class="submit-btn-min mb-4 lg:mb-8 p-2" @click="addComment">
                 Submit
             </button>
         </div>
         <!-- Comment section -->
         <section class="text-white">
-            <Comment v-for="comment in comments" :data="comment" :key="comment.id" />
+            <Comment v-for="comment in comments" :data="comment" :key="comment.id" @deleteMe="handleDeleteMe">
+
+            </Comment>
         </section>
     </section>
 </template>
@@ -101,7 +103,8 @@ export default {
             comments: [],
             lastSeenString: "",
             pageCount: 0,
-            limit: 10
+            limit: 10,
+            commentAddContent: ''
         }
     },
     setup() {
@@ -135,7 +138,7 @@ export default {
                 const url = `/podcasts/get-comments/${this.podcastData.id}`
                 const result = await axios.get(url, { header: { withCredentials: true }, params: data, baseURL: '/api' })
                 console.log(result);
-                this.pageCount = result.data.count / this.limit
+                this.pageCount = Math.ceil(result.data.count / this.limit)
                 this.comments = result.data.rows
             }
             catch (err)
@@ -162,6 +165,10 @@ export default {
             }
             
         },
+        handleDeleteMe(commId) {
+            console.log('handling delete');
+            this.comments = this.comments.filter(c => c.id !== commId)
+        },
         async getComments(limit) {
             console.log('getting comments');
             try
@@ -181,6 +188,26 @@ export default {
             catch (err)
             {
                 //console.log(err);
+            }
+        },
+        async addComment() {
+            if(this.commentAddContent.length == 0)
+                return
+
+            try
+            {
+                const formData =
+                {
+                    content: this.commentAddContent,
+                    podcastId: this.podcastData.id
+                }
+                const result = await axios.post('/podcasts/submit/comment', formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded', withCredentials: true }, baseURL: '/api' })
+                console.log(result);
+                this.comments.unshift(result.data.comment)
+            }
+            catch (err)
+            {
+                console.log(err);
             }
         }
     }

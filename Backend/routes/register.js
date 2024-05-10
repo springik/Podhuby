@@ -12,11 +12,13 @@ registerRouter.post('/register', body('userEmail').isEmail().normalizeEmail(), b
     const userEmail = req.body.userEmail
     const userName = req.body.userName
     const userPassword = await hashPassword(req.body.userPassword)
+    console.log(userEmail);
 
     try
     {
         const uuc = await db.User.findOne({ where: { email: userEmail } })
-        if(uuc !== undefined || uuc !== null)
+        console.log(uuc);
+        if( uuc != null || uuc != undefined )
         {
             res.status(409).json({ message: 'User already registered' })
             return

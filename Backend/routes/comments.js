@@ -84,15 +84,27 @@ commentsRouter.get('/get-comments/:podcastId', async (req, res) => {
 commentsRouter.post('/submit/comment', async (req, res) => {
 
     if(req.session.data.user === undefined || req.session.data.user === null) {
-        res.status(404).json({ message: 'Try loging in' })
+        res.status(401).json({ message: 'Try loging in' })
         return
     }
     const { podcastId, rootId, content } = req.body
 
     try
     {
-        const comm = await db.Comment.create({ root_id: rootId, podcast_id: podcastId, author_id: req.session.data.user.id, content: content })
-        res.status(200).json({ message: 'Successfully created comment' })
+      const comm = await db.Comment.create({ root_id: rootId, podcast_id: podcastId, author_id: req.session.data.user.id, content: content })
+      await comm.save()
+      const comment = await db.Comment.findOne({
+        where: {
+          id: comm.id
+        },
+        include: [
+          {
+            model: db.User,
+            as: 'author'
+          }
+        ]
+      })
+      res.status(200).json({ message: 'Successfully created comment', comment: comment })
     }
     catch (err)
     {

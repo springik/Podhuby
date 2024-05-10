@@ -12,7 +12,7 @@
                     </div>
                     <div class="w-11/12 lg:w-1/2">
                             <p class="text-sm text-left">
-                                {{ data.content }}
+                                {{ content }}
                             </p>
                     </div>
                 </div>
@@ -47,7 +47,7 @@
                 </div>
                 <div v-if="userStore.user !== null && showEdit" class="flex flex-col justify-center items-center">
                     <textarea v-model="commentEditContent" class="h-48 lg:w-96 w-64 outline-white outline-dotted outline-2 bg-mainColor outline-offset-8 m-8 resize-none text-white text-base" />
-                    <button :disabled="disableEditBtn" @click="reply" class="submit-btn-min mb-4 lg:mb-8 p-2">
+                    <button :disabled="disableEditBtn" @click="edit" class="submit-btn-min mb-4 lg:mb-8 p-2">
                         Submit
                     </button>
                 </div>
@@ -97,17 +97,18 @@ export default {
             disableEditBtn: false,
             lastSeenString: "",
             limit: 10,
-            showEdit: false,
-            //comments: []
+            showEdit: false
         }
     },
-    setup() {
+    setup(props) {
         const comments = ref([])
         const userStore = useUserStore()
+        const content = ref(props.data.content)
 
         return {
             userStore,
-            comments
+            comments,
+            content
         }
     },
     mounted() {
@@ -134,7 +135,27 @@ export default {
                 this.editBtnSrc = '/edit-icon.svg'
         },
         async edit() {
-            
+            this.disableEditBtn = true
+            try
+            {
+                const formData =
+                {
+                    content: this.commentEditContent,
+                    commentId: this.data.id
+                }
+
+                const result = await axios.patch('/podcasts/edit/comment', formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded', withCredentials: true }, baseURL: '/api'})
+                console.log(result);
+                this.content = this.commentEditContent
+            }
+            catch (err)
+            {
+                console.log(err);
+            }
+            finally
+            {
+                this.disableEditBtn = false
+            }
         },
         async deleteComment() {
             console.log('deleting comment');
@@ -200,9 +221,10 @@ export default {
             {
                 console.log(err);
             }
-
-
-            this.disableReplyBtn = false
+            finally
+            {
+                this.disableReplyBtn = false
+            }
         }
     }
 }

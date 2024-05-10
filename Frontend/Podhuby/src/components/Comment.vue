@@ -63,6 +63,11 @@
                 <div v-for="(reply, index) in comments" :key="index" >
                     <Comment v-bind="{ data: reply }"  @deleteMe="handleDeleteMe"/>
                 </div>
+                <div v-if="lastGetCount >= 10" class="flex justify-center">
+                    <button @click="getComments" class="submit-btn-min mb-4 lg:mb-8 p-2">
+                        Show more comments
+                    </button>
+                </div>
             </div>
             <div v-if="showSub" class="flex justify-center">
                 <hr class="my-4 lg:my-6 w-3/4 lg:w-2/3 separator-col">
@@ -95,9 +100,9 @@ export default {
             editBtnSrc: '/edit-icon.svg',
             disableReplyBtn: false,
             disableEditBtn: false,
-            lastSeenString: "",
             limit: 10,
-            showEdit: false
+            showEdit: false,
+            lastGetCount: null
         }
     },
     setup(props) {
@@ -109,6 +114,11 @@ export default {
             userStore,
             comments,
             content
+        }
+    },
+    computed: {
+        lastSeenString() {
+            return this.comments[this.comments.length - 1]?.createdAt || ''
         }
     },
     mounted() {
@@ -189,12 +199,14 @@ export default {
                     rootId: this.data.id,
                     limit: this.limit
                 }
+                console.log(data);
 
                 const url = `/podcasts/get-comments/${this.data.podcast_id}`
                 const result = await axios.get(url, { header: { withCredentials: true }, params: data, baseURL: '/api' })
                 console.log(result);
                 this.pageCount = result.data.count / this.limit
-                this.comments = result.data.rows
+                this.lastGetCount = result.data.rows.length
+                this.comments = this.comments.concat(result.data.rows)
             }
             catch (err)
             {

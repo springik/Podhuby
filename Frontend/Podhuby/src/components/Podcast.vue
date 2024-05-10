@@ -84,6 +84,11 @@
             <Comment v-for="comment in comments" :data="comment" :key="comment.id" @deleteMe="handleDeleteMe">
 
             </Comment>
+            <div v-if="lastGetCount >= 10" class="flex justify-center">
+                    <button @click="getComments" class="submit-btn-min mb-4 lg:mb-8 p-2">
+                        Show more comments
+                    </button>
+                </div>
         </section>
     </section>
 </template>
@@ -101,10 +106,10 @@ export default {
         return {
             podcastData: {  },
             comments: [],
-            lastSeenString: "",
             pageCount: 0,
             limit: 10,
-            commentAddContent: ''
+            commentAddContent: '',
+            lastGetCount: null
         }
     },
     setup() {
@@ -125,26 +130,12 @@ export default {
             this.podcastData = result.data[0]
             this.podcastStore.addPodcast(this.podcastData)
         }
-
-        console.log('getting comments');
-            try
-            {
-                const data = {
-                    lastSeenString: this.lastSeenString,
-                    rootId: "",
-                    limit: this.limit
-                }
-
-                const url = `/podcasts/get-comments/${this.podcastData.id}`
-                const result = await axios.get(url, { header: { withCredentials: true }, params: data, baseURL: '/api' })
-                console.log(result);
-                this.pageCount = Math.ceil(result.data.count / this.limit)
-                this.comments = result.data.rows
-            }
-            catch (err)
-            {
-                console.log(err);
-            }
+        this.getComments()
+    },
+    computed: {
+        lastSeenString() {
+            return this.comments[this.comments.length - 1]?.createdAt || ''
+        }
     },
     methods: {
         async getPodcast(stored) {
@@ -169,25 +160,26 @@ export default {
             console.log('handling delete');
             this.comments = this.comments.filter(c => c.id !== commId)
         },
-        async getComments(limit) {
+        async getComments() {
             console.log('getting comments');
             try
             {
                 const data =
-                `
-                    "lastSeenString": ${ this.lastSeenString },
-                    "rootId": ,
-                    "limit": ${ limit }
-                `
+                {
+                    lastSeenString: this.lastSeenString,
+                    rootId: '',
+                    limit: this.limit
+                }
                 const url = `/podcasts/get-comments/${this.podcastData.id}`
                 const result = await axios.get(url, { header: { withCredentials: true }, params: data, baseURL: '/api' })
                 console.log(result);
-                this.pageCount = result.count / limit
-                this.comments = result.rows
+                this.pageCount = result.count / this.limit
+                this.lastGetCount = result.data.rows.length
+                this.comments = this.comments.concat(result.data.rows)
             }
             catch (err)
             {
-                //console.log(err);
+                console.log(err);
             }
         },
         async addComment() {

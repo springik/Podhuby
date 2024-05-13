@@ -3,7 +3,7 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class Comment extends Model {
+  class Comment_Report extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -11,50 +11,43 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.hasMany(models.Comment, {
-        foreignKey: 'root_id',
-        as: 'c2'
+      this.belongsTo(models.User, {
+        foreignKey: 'reporter_id',
+        as: 'reporter',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       })
       this.belongsTo(models.Comment, {
-        foreignKey: 'root_id',
-        as: 'parent'
-      })
-      this.belongsTo(models.User, {
-        foreignKey: 'author_id',
-        as: 'author'
-      })
-      this.hasMany(models.Comment_Report, {
-        foreignKey: 'comment_id'
+        foreignKey: 'comment_id',
+        as: 'comment',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       })
     }
   }
-  Comment.init({
+  Comment_Report.init({
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true
     },
-    root_id: {
-      type: DataTypes.INTEGER,
+    reason: {
+      type: DataTypes.STRING,
       allowNull: true
     },
-    podcast_id: {
+    reporter_id: {
       type: DataTypes.INTEGER,
       allowNull: false
     },
-    author_id: {
+    comment_id: {
       type: DataTypes.INTEGER,
-      allowNull: false
-    },
-    content: {
-      type: DataTypes.TEXT,
       allowNull: false
     }
   }, {
     sequelize,
-    modelName: 'Comment',
-    tableName: 'Comments',
-    underscored: true
+    modelName: 'Comment_Report',
+    tableName: 'Comment_Reports',
+    underscored: true,
   });
-  return Comment;
+  return Comment_Report;
 };

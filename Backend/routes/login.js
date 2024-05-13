@@ -23,13 +23,17 @@ loginRouter.post('/login',body('userEmail').isEmail().normalizeEmail(), body('us
             res.status(500).json({ message: "User not found" })
             return
         }
+        if(result.banned) {
+            res.status(403).json({ message: 'User has been banned' })
+            return
+        }
         if(!bcrypt.compare(req.body.userPassword, result.password)) {
             res.status(500).json({message: "User authentication failed"})
             return
         }
 
         req.session.data.user = result
-        res.status(200).json({ message: "Successfully logged in" })
+        res.status(200).json({ message: "Successfully logged in", user: result })
     }).catch((err) => {
         console.log(err);
         res.status(500).json({ message: "Something went wrong", code: err.code })
@@ -45,16 +49,7 @@ loginRouter.get('/current-user', async (req, res) => {
     
     db.User.findOne({ where: { email: req.session.data.user.email } })
     .then((result) => {
-
-        const returned = {
-            id: result.id,
-            email: result.email,
-            nickname: result.nickname,
-            pfp_path: result.pfp_path
-        }
-
-        res.status(200).json(returned)
-        return
+        return res.status(200).json(result)
     }).catch((err) => {
         console.log(err);
         res.status(500).json({ message: 'Fetch failed' })

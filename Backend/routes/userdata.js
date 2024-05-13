@@ -12,19 +12,11 @@ userDataRouter.get('/current-user', async (req, res) => {
     
     db.User.findOne({ where: { email: req.session.data.user.email } })
     .then((result) => {
-
-        const returned = result.map((item) => {
-            return {
-                id: item.id,
-                email: item.email,
-                nickname: item.nickname,
-                pfp_path: item.pfp_path
-            }
-        })
-
-        res.status(200).json(returned)
+        console.log(result);
+        res.status(200).json(result)
         return
-    }).catch((err) => {
+    })
+    .catch((err) => {
         console.log(err);
         res.status(500).json({ message: 'Fetch failed' })
         return

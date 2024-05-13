@@ -717,10 +717,6 @@ video {
   justify-content: center;
 }
 
-.justify-between {
-  justify-content: space-between;
-}
-
 .gap-12 {
   gap: 3rem;
 }
@@ -879,6 +875,10 @@ video {
 
 .uppercase {
   text-transform: uppercase;
+}
+
+.capitalize {
+  text-transform: capitalize;
 }
 
 .text-tertiaryColor {
@@ -1112,10 +1112,6 @@ img.card-heart {
     height: 2.5rem;
   }
 
-  .lg\:h-12 {
-    height: 3rem;
-  }
-
   .lg\:h-20 {
     height: 5rem;
   }
@@ -1126,10 +1122,6 @@ img.card-heart {
 
   .lg\:w-10 {
     width: 2.5rem;
-  }
-
-  .lg\:w-12 {
-    width: 3rem;
   }
 
   .lg\:w-2\/3 {

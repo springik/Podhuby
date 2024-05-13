@@ -26,6 +26,16 @@ module.exports = {
         allowNull: false,
         defaultValue: '/default_pfp.jpg'
       },
+      permision_level: {
+        type: Sequelize.ENUM('user', 'admin'),
+        allowNull: false,
+        defaultValue: 'user'
+      },
+      banned: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE

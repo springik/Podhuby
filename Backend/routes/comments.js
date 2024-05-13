@@ -1,6 +1,7 @@
 const express = require('express')
 const db = require('../Sequelize/models')
 const commentsRouter = express.Router()
+const auth = require('../Middleware/auth.js')
 
 
 commentsRouter.get('/get-comments/:podcastId', async (req, res) => {
@@ -12,21 +13,6 @@ commentsRouter.get('/get-comments/:podcastId', async (req, res) => {
 
     try
     {
-        /*
-        const comments = awat db.sequelize.query(`SELECT c1.*, array_agg(c2) as replies
-        FROM "Comments" c1
-        LEFT JOIN "Comments" c2 ON c1.id = c2.root_id
-        GROUP BY c1.id
-        HAVING c1.root_id IS NULL AND c1.podcast_id = ${podcastId}
-        ORDER BY c1.id;`)
-
-        console.log(comments);
-        const response = comments.map((entry) => {
-            return entry[0]
-        })
-
-        res.status(200).json(response)
-        */
        let comments = []
 
         if(lastSeenString === "") {
@@ -67,7 +53,7 @@ commentsRouter.get('/get-comments/:podcastId', async (req, res) => {
 
           if(comments.length === 0)
           {
-            res.status(403).json({ message: 'No comments found' })
+            res.status(404).json({ message: 'No comments found' })
             return
           }
           console.log(comments);
@@ -148,22 +134,36 @@ commentsRouter.patch('/edit/comment', async (req, res) => {
     }
 })
 
-commentsRouter.delete('/comment', async (req, res) => {
+commentsRouter.delete('/comment', auth, async (req, res) => {
+  /*
   if(req.session.data.user === undefined || req.session.data.user === null) {
     res.status(403).json({ message: 'Try logging in' })
     return
   }
+
+  */
   const { commentId } = req.body
   console.log(req.session.data.user);
 
   try {
-    //const comment = await db.Comment.findByPk(commentId)
-    const comment = await db.Comment.findOne({
-      where: {
-        id: commentId,
-        author_id: req.session.data.user.id
-      }
-    })
+    let comment = undefined
+    if(req.session.data.user.permision_level === 'admin') {
+      comment = await db.Comment.findOne({
+        where: {
+          id: commentId
+        }
+      })
+
+    }
+    else {
+      comment = await db.Comment.findOne({
+        where: {
+          id: commentId,
+          author_id: req.session.data.user.id
+        }
+      })
+    }
+
     if(comment === undefined || comment === null) {
       res.status(404).json({ message: 'No comment found to delete' })
       return
@@ -175,6 +175,25 @@ commentsRouter.delete('/comment', async (req, res) => {
   catch (err) {
     console.log(err);
     res.status(500).json({ message: 'Something went wrong' })
+  }
+})
+commentsRouter.post('/report/comment', auth, async (req, res) => {
+  const { commentId,  reason } = req.body
+
+  try
+  {
+    const report = await db.Comment_Report.create({
+      reason: reason,
+      reporter_id: req.session.data.user.id,
+      comment_id: commentId
+    })
+    console.log(report);
+    res.status(200).json({ message: 'Comment reported' })
+  }
+  catch (err)
+  {
+    console.log(err);
+    res.status(500).json({ message: 'Something went wrong!' })
   }
 })
 

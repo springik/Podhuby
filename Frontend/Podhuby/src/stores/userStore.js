@@ -8,5 +8,15 @@ export const useUserStore = defineStore('user-store', {
         setUser(user) {
             this.user = user
         }
+    },
+    getters: {
+        getPermisionLevel: (state) => {
+            return (level) => {
+                if(!state.user)
+                    return false
+
+                return state.user.permision_level === level
+            }
+        }
     }
 })

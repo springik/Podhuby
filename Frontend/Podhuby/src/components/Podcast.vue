@@ -21,19 +21,20 @@
                 </div>
                 <div class="text-lg lg:flex lg:flex-row gap-4 lg:justify-center items-center grid grid-cols-3">
                     <div v-for="name in podcastData.genre_names" :key="name" class="rounded-full bg-accentColor p-2 lg:p-3">
-                        <p>
+                        <p class="capitalize">
                             {{ name }}
                         </p>
                     </div>
                 </div>
             </div>
+            <!--
             <div class="lg:w-3/4 flex-col flex justify-center items-center">
                 <div>
                     <h2 class="py-5 text-xl lg:text-3xl ">
                     Tags:
                     </h2>
                 </div>
-                <div class="text-lg lg:flex lg:flex-row gap-4 lg:ustify-center lg:items-center grid grid-cols-3">
+                <div class="text-lg lg:flex lg:flex-row gap-4 lg:justify-center lg:items-center grid grid-cols-3">
                     <div v-for="name in podcastData.tag_names" :key=name class="rounded-full bg-accentColor p-2 lg:p-3">
                         <p>
                             {{ name }}
@@ -41,6 +42,7 @@
                     </div>
                 </div>
             </div>
+            -->
             </div>
             <div class="flex flex-row justify-center items-top gap-12 p-4">
                 <div v-if="podcastData.youtube_link != null" class="py-4">
@@ -75,8 +77,8 @@
         <!-- Comment add --->
         <div v-if="userStore.user !== null" class="flex flex-col justify-center items-center">
             <textarea v-model="commentAddContent" class="h-48 lg:w-96 w-64 outline-white outline-dotted outline-2 bg-mainColor outline-offset-8 m-8 resize-none text-white text-base" />
-            <button class="submit-btn-min mb-4 lg:mb-8 p-2" @click="addComment">
-                Submit
+            <button title="Add Comment" class="submit-btn-min mb-4 lg:mb-8 p-2" @click="addComment">
+                Comment
             </button>
         </div>
         <!-- Comment section -->
@@ -85,7 +87,7 @@
 
             </Comment>
             <div v-if="lastGetCount >= 10" class="flex justify-center">
-                    <button @click="getComments" class="submit-btn-min mb-4 lg:mb-8 p-2">
+                    <button title="Get More Comments" @click="getComments" class="submit-btn-min mb-4 lg:mb-8 p-2">
                         Show more comments
                     </button>
                 </div>

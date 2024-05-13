@@ -11,8 +11,9 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.belongsToMany(models.Podcast, {through: 'User_favourite_Podcasts'})
+      this.belongsToMany(models.Podcast, { through: 'User_favourite_Podcasts' })
       this.hasMany(models.Comment, { foreignKey: 'author_id' })
+      this.hasMany(models.Comment_Report, { foreignKey: 'reporter_id' })
     }
   }
   User.init({
@@ -38,6 +39,16 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
       defaultValue: '/default_pfp.jpg'
+    },
+    permision_level: {
+      type: DataTypes.ENUM('user', 'admin'),
+      allowNull: false,
+      defaultValue: 'user'
+    },
+    banned: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
     }
   }, {
     sequelize,

@@ -31,9 +31,9 @@
                         </button>
                     </div>
                 </div>
-                <div v-if="userStore.user !== null && this.userStore.user.id == data.author_id" class="gap-4 flex justify-center flex-row">
+                <div v-if="userStore.user !== null && this.userStore.user.id == data.author_id || this.userStore.getPermisionLevel('admin')" class="gap-4 flex justify-center flex-row">
                     <div>
-                        <button class="submit-btn-min p-2" @click="deleteComment">
+                        <button title="Delete Comment" class="submit-btn-min p-2" @click="deleteComment">
                             <img class="w-6 h-6" :src="deleteBtnSrc" alt="reply">
                         </button>
                     </div>
@@ -41,19 +41,19 @@
                 </div>
                 <div v-if="userStore.user !== null && showReply" class="flex flex-col justify-center items-center">
                     <textarea v-model="commentReplyContent" class="h-48 lg:w-96 w-64 outline-white outline-dotted outline-2 bg-mainColor outline-offset-8 m-8 resize-none text-white text-base" />
-                    <button :disabled="disableReplyBtn" @click="reply" class="submit-btn-min mb-4 lg:mb-8 p-2">
+                    <button title="Reply to Comment" :disabled="disableReplyBtn" @click="reply" class="submit-btn-min mb-4 lg:mb-8 p-2">
                         Submit
                     </button>
                 </div>
                 <div v-if="userStore.user !== null && showEdit" class="flex flex-col justify-center items-center">
                     <textarea v-model="commentEditContent" class="h-48 lg:w-96 w-64 outline-white outline-dotted outline-2 bg-mainColor outline-offset-8 m-8 resize-none text-white text-base" />
-                    <button :disabled="disableEditBtn" @click="edit" class="submit-btn-min mb-4 lg:mb-8 p-2">
+                    <button title="Edit Comment" :disabled="disableEditBtn" @click="edit" class="submit-btn-min mb-4 lg:mb-8 p-2">
                         Submit
                     </button>
                 </div>
             </div>
             <!-- toggle --->
-            <button @click="toggle" class="text-white ml-5 lg:ml-80">
+            <button v-if="comments.length > 0" title="Show Replies" @click="toggle" class="text-white ml-5 lg:ml-80">
                 <img :class="{ 'rotate-n-90' : !showSub }" class="w-7 h-7" src="/arrow-down.svg" alt="toggle arrow">
             </button>
             <div v-if="showSub" class="flex justify-center">
@@ -64,7 +64,7 @@
                     <Comment v-bind="{ data: reply }"  @deleteMe="handleDeleteMe"/>
                 </div>
                 <div v-if="lastGetCount >= 10" class="flex justify-center">
-                    <button @click="getComments" class="submit-btn-min mb-4 lg:mb-8 p-2">
+                    <button title="Get More Comments" @click="getComments" class="submit-btn-min mb-4 lg:mb-8 p-2">
                         Show more comments
                     </button>
                 </div>

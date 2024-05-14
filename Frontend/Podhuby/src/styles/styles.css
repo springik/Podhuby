@@ -548,8 +548,64 @@ video {
   position: fixed;
 }
 
+.absolute {
+  position: absolute;
+}
+
+.relative {
+  position: relative;
+}
+
 .inset-0 {
   inset: 0px;
+}
+
+.left-1 {
+  left: 0.25rem;
+}
+
+.end-8 {
+  inset-inline-end: 2rem;
+}
+
+.left-10 {
+  left: 2.5rem;
+}
+
+.left-64 {
+  left: 16rem;
+}
+
+.left-96 {
+  left: 24rem;
+}
+
+.left-full {
+  left: 100%;
+}
+
+.left-3\/4 {
+  left: 75%;
+}
+
+.left-auto {
+  left: auto;
+}
+
+.right-0 {
+  right: 0px;
+}
+
+.top-0 {
+  top: 0px;
+}
+
+.right-2 {
+  right: 0.5rem;
+}
+
+.top-2 {
+  top: 0.5rem;
 }
 
 .m-8 {
@@ -719,6 +775,10 @@ video {
 
 .items-stretch {
   align-items: stretch;
+}
+
+.justify-end {
+  justify-content: flex-end;
 }
 
 .justify-center {
@@ -1175,10 +1235,6 @@ img.card-heart {
 
   .lg\:items-end {
     align-items: flex-end;
-  }
-
-  .lg\:items-center {
-    align-items: center;
   }
 
   .lg\:justify-end {

@@ -4,6 +4,7 @@ const db = require('../Sequelize/models');
 const axios = require('axios')
 const {Op, QueryTypes, where} = require('sequelize')
 const sessionPreparer = require('../Middleware/sessionPreparer.js');
+const auth = require('../Middleware/auth.js')
 
 podcastsRouter.use(sessionPreparer)
 
@@ -11,13 +12,23 @@ podcastsRouter.get('/all/:count?', async (req, res) => {
   try
   {
     const podcasts = await db.Podcast.findAll({
-      attributes: ['*', [db.sequelize.fn('array_agg', db.sequelize.col('Genres.name')), 'genres']],
+      attributes: [
+        '*',
+        [db.sequelize.fn('array_agg', db.sequelize.col('Genres.name')), 'genres'],
+        [db.sequelize.fn('avg', db.sequelize.col('Podcast_Ratings.score')), 'average_rating']
+      ],
       include: [
         {
           model: db.Genre,
           attributes: [],
           through: { attributes: [] },
           required: true,
+          duplicating: false
+        },
+        {
+          model: db.Podcast_Rating,
+          attributes: [],
+          required: false,
           duplicating: false
         }
       ],
@@ -77,16 +88,12 @@ podcastsRouter.get('/:podcastTitle', async (req, res) => {
     res.status(500).json({ message: 'Something went wrong' })
   }
 })
-podcastsRouter.post('/favourite/:podcastId', async (req, res) => {
-  if(req.session.data.user == undefined || req.session.data.user == null) {
-    res.status(401).json({ message: 'User not authorized' })
-    return
-  }
-
+podcastsRouter.post('/favourite/:podcastId', auth, async (req, res) => {
+  const { podcastId } = req.params
   try {
     const [user_favourite_podcast, created] = await db.User_favourite_Podcast.findOrCreate({
       where: {
-        podcast_id: req.params.podcastId,
+        podcast_id: podcastId,
         user_id: req.session.data.user.id
       }
     })
@@ -105,6 +112,41 @@ podcastsRouter.post('/favourite/:podcastId', async (req, res) => {
     console.log(err);
     res.status(500).json({ message: 'Server error' })
     return
+  }
+})
+podcastsRouter.post('/rate/:podcastId', auth, async (req, res) => {
+  const { podcastId } = req.params
+  const { score } = req.body
+
+  try
+  {
+    const rating = await db.Podcast_Rating.findOne({
+      where: {
+        user_id: req.session.data.user.id,
+        podcast_id: podcastId
+      }
+    })
+    if(rating === null) {
+      await db.Podcast_Rating.create({
+        podcast_id: podcastId,
+        user_id: req.session.data.user.id,
+        score: score
+      })
+      return res.status(200).json({ message: 'Rating created' })
+    }
+    else if(rating.score == score){
+      await rating.destroy()
+      return res.status(200).json({ message: 'Rating deleted' })
+    }
+    await rating.update({
+      score: score
+    })
+    return res.status(200).json({ message: 'Rating changed' })
+  }
+  catch (err)
+  {
+    console.log(err);
+    return res.status(500).json({ message: 'Something went wrong' })
   }
 })
 

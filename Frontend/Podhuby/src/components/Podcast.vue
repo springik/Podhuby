@@ -27,22 +27,6 @@
                     </div>
                 </div>
             </div>
-            <!--
-            <div class="lg:w-3/4 flex-col flex justify-center items-center">
-                <div>
-                    <h2 class="py-5 text-xl lg:text-3xl ">
-                    Tags:
-                    </h2>
-                </div>
-                <div class="text-lg lg:flex lg:flex-row gap-4 lg:justify-center lg:items-center grid grid-cols-3">
-                    <div v-for="name in podcastData.tag_names" :key=name class="rounded-full bg-accentColor p-2 lg:p-3">
-                        <p>
-                            {{ name }}
-                        </p>
-                    </div>
-                </div>
-            </div>
-            -->
             </div>
             <div class="flex flex-row justify-center items-top gap-12 p-4">
                 <div v-if="podcastData.youtube_link != null" class="py-4">

@@ -599,6 +599,14 @@ video {
   margin-left: 1.25rem;
 }
 
+.mb-8 {
+  margin-bottom: 2rem;
+}
+
+.mb-16 {
+  margin-bottom: 4rem;
+}
+
 .block {
   display: block;
 }
@@ -669,6 +677,14 @@ video {
 
 .w-full {
   width: 100%;
+}
+
+.w-32 {
+  width: 8rem;
+}
+
+.w-96 {
+  width: 24rem;
 }
 
 .select-none {
@@ -891,6 +907,11 @@ video {
   color: rgb(255 255 255 / var(--tw-text-opacity));
 }
 
+.text-black {
+  --tw-text-opacity: 1;
+  color: rgb(0 0 0 / var(--tw-text-opacity));
+}
+
 .underline {
   text-decoration-line: underline;
 }
@@ -1098,6 +1119,10 @@ img.card-heart {
 
   .lg\:mr-20 {
     margin-right: 5rem;
+  }
+
+  .lg\:mb-16 {
+    margin-bottom: 4rem;
   }
 
   .lg\:flex {

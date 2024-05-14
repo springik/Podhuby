@@ -20,7 +20,7 @@
                     </h2>
                 </div>
                 <div class="text-lg lg:flex lg:flex-row gap-4 lg:justify-center items-center grid grid-cols-3">
-                    <div v-for="name in podcastData.genre_names" :key="name" class="rounded-full bg-accentColor p-2 lg:p-3">
+                    <div v-for="name in podcastData.genres" :key="name" class="rounded-full bg-accentColor p-2 lg:p-3">
                         <p class="capitalize">
                             {{ name }}
                         </p>

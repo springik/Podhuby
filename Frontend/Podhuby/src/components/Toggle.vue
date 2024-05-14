@@ -1,6 +1,6 @@
 <template>
   <div @click="toggle" class="rounded-full p-2 border-2" :class="[ chosen ? 'bg-accentColor border-transparent' : 'border-dashed border-white' ]">
-    <p class="select-none text-center">
+    <p class="select-none text-center capitalize">
         {{ text }}
     </p>
   </div>

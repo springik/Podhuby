@@ -122,7 +122,7 @@ export default {
             limit: 10,
             showEdit: false,
             lastGetCount: null,
-            reportRegex: /^[a-zA-Z0-9_]{4,16}$/,
+            reportRegex: /^[a-zA-Z0-9_\s]{0,200}$/,
             showingReport: true,
             reportTimeoutMs: 10000
         }

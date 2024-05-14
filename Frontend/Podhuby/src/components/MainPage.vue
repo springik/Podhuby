@@ -38,18 +38,15 @@ export default {
     data() {
         return {
             podcasts: [],
-            filters: { genres: []/*, tags: []*/ },
-            genres: [ { id: 1, name: "True Crime" }, {id: 2, name: "News"} ],
-            //tags: [ {id:1, name: "Banter"}, {id:2, name: "Interview"}, {id:3, name: "Comedy"} ]
+            filters: { genres: [] },
+            genres: [ { id: 1, name: "true crime" }, {id: 2, name: "news"}, { id: 3, name: "comedy" } ]
         }
     },
     computed: {
         filteredPodcasts() {
             return this.podcasts.filter(podcast => {
                 return (
-                    (this.filters.genres.length === 0 || this.filters.genres.some(genre => podcast.genre_names.includes(genre)))
-                    /*&&
-                    (this.filters.tags.length === 0 || podcast.tag_names.some(tag => this.filters.tags.includes(tag)))*/
+                    (this.filters.genres.length === 0 || this.filters.genres.some(genre => podcast.genres.includes(genre)))
                 )
             })
         }
@@ -59,6 +56,8 @@ export default {
             try {
                 const url = `/podcasts/all/${count}`
                 const results = await axios.get(url, { header: { withCredentials: true }, baseURL: '/api' })
+                console.log(results);
+                console.log(results);
                 this.podcasts = results.data
                 this.podcastStore.init(this.podcasts)
             }
@@ -74,24 +73,13 @@ export default {
                 if(data.type === 'genre') {
                     this.filters.genres.push(data.text.toLowerCase())
                 }
-                /*
-                if(data.type === 'tag') {
-                    this.filters.tags.push(data.text.toLowerCase())
-                }
-                */
             }
             else if (data.type === 'genre')
-                //console.log(this.filters.genres);
                 this.filters.genres = this.filters.genres.filter((g) => g !== data.text.toLowerCase())
-            /*
-            else if (data.type === 'tag')
-                //console.log(this.filters.tags);
-                this.filters.tags = this.filters.tags.filter((t) => t !== data.text.toLowerCase())
-            */
         }
     },
     mounted() {
-        this.getPodcasts(24, 0)
+        this.getPodcasts(50, 0)
     }
 }
 </script>

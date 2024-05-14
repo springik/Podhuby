@@ -12,8 +12,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.belongsToMany(models.Tag, {through: 'Podcast_Tags'})
-      this.belongsToMany(models.User, {through: 'User_favourite_Podcasts'})
+      this.belongsToMany(models.User, {through: 'User_favourite_Podcasts', foreignKey: 'podcast_id', otherKey: 'user_id'})
       this.belongsToMany(models.Genre, {through: 'Podcast_Genres', foreignKey: 'podcast_id', otherKey: 'genre_id'})
     }
   }

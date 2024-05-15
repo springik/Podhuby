@@ -199,6 +199,54 @@ podcastsRouter.get('/favourite/state/:podcastId', auth, async (req, res) => {
     return res.status(500).json({ message: 'Something went wrong' })
   }
 })
+podcastsRouter.get('/rate/current', auth, async (req, res) => {
+  const { podcastId } = req.query
+  try
+  {
+    const rating = await db.Podcast_Rating.findOne({
+      where: {
+        podcast_id: podcastId,
+        user_id: req.session.data.user.id
+      }
+    })
+    if(rating === null)
+      return res.status(200).json({message: 'No ratings'})
+    console.log(rating);
+    return res.status(200).json(rating)
+  }
+  catch (err)
+  {
+    console.log(err);
+    return res.status(500).json({ message: 'Something went wrong' })
+  }
+})
+podcastsRouter.get('/rate/avg', async (req, res) => {
+  const { podcastId } = req.query
+  console.log(podcastId);
+  try
+  {
+    const podcasts = await db.Podcast_Rating.findAll({
+    attributes: [
+      [db.sequelize.cast(db.sequelize.fn('avg', db.sequelize.col('Podcast_Rating.score')), 'decimal(10,2)'), 'average_rating']
+    ],
+    where: {
+      podcast_id: podcastId
+    },
+    raw: true
+    })
+    if(podcasts[0]['average_rating'] === null) {
+      return res.status(200).json({ average_rating: 'No ratings' })
+    }
+    const average_rating = parseFloat(podcasts[0]['average_rating'])
+    return res.status(200).json({ average_rating })
+  }
+  catch (err)
+  {
+    console.log(err);
+    return res.status(500).json({ message: 'Something went wrong' })
+  }
+  
+})
 podcastsRouter.post('/rate/:podcastId', auth, async (req, res) => {
   const { podcastId } = req.params
   const { score } = req.body
@@ -233,9 +281,6 @@ podcastsRouter.post('/rate/:podcastId', auth, async (req, res) => {
     console.log(err);
     return res.status(500).json({ message: 'Something went wrong' })
   }
-})
-podcastsRouter.get('/rate/current', auth, (req, res) => {
-
 })
 
 podcastsRouter.post('/youtube/submit', async (req, res) => {

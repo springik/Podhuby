@@ -55,7 +55,7 @@
                 </div>
             </div>
             <div v-if="this.userStore.user !== null" class="flex justify-center items-center">
-                <Rating @onRate="handleRate" />
+                <Rating ref="rating" @onRate="handleRate" :initialSelectedIndex="-1" />
             </div>
         </section>
         <!-- separator -->
@@ -101,7 +101,8 @@ export default {
             pageCount: 0,
             limit: 10,
             commentAddContent: '',
-            lastGetCount: null
+            lastGetCount: null,
+            currRating: -1
         }
     },
     setup() {
@@ -125,6 +126,8 @@ export default {
             this.podcastStore.addPodcast(this.podcastData)
         }
         this.getComments()
+        if(this.userStore.user !== null)
+            await this.getCurrRating()
     },
     computed: {
         lastSeenString() {
@@ -151,22 +154,55 @@ export default {
             
         },
         async handleRate(rating) {
+            rating += 1
             console.log(rating, 'this is the rating');
             try
             {
-                const url = `/podcasts/rate/${this.podcastData.id}`
+                const url = `/api/podcasts/rate/${this.podcastData.id}`
                 const data =
                 {
                     score: rating
                 }
-                const results = await axios.post(url, data, { header: { withCredentials: true }, baseURL: '/api' })
+                const results = await axios.post(url, data, { header: { withCredentials: true } })
                 this.toast.success(results.data.message)
+                await this.getCurrRating()
+                
             }
             catch (err)
             {
                 console.log(err);
                 this.toast.error(err.response.data.message)
             }
+        },
+        async getCurrRating() {
+            try
+            {
+                const url = `/podcasts/rate/current`
+                const params =
+                {
+                    podcastId: this.podcastData.id
+                }
+
+                const results = await axios.get(url, { params, header: { withCredentials: true }, baseURL: '/api' })
+                const index = results.data.score - 1
+                this.$refs.rating.setRating(index)
+                await this.getAverageRating()
+            }
+            catch (err)
+            {
+                console.log(err);
+                this.toast.error(err.response?.data?.message)
+            }
+        },
+        async getAverageRating() {
+            const url = `/podcasts/rate/avg`
+            const params =
+            {
+                podcastId: this.podcastData.id
+            }
+            const results = await axios.get(url, { params, header: { withCredentials: true }, baseURL: '/api' })
+            console.log(results);
+            this.podcastData.average_rating = results.data.average_rating
         },
         handleDeleteMe(commId) {
             console.log('handling delete');

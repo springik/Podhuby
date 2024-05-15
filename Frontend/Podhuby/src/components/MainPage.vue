@@ -13,7 +13,7 @@
     </button>
 
     <div class="main-grid">
-        <Card v-for="(podcast, index) in filteredPodcasts" :key="index" :heading="podcast.title" :imgPath="podcast.image_path" :description="podcast.description" :favouriteCount="podcast.favourite_count" :podcast_id="podcast.id" />
+        <Card v-for="(podcast, index) in filteredPodcasts" :key="index" :heading="podcast.title" :imgPath="podcast.image_path" :description="podcast.description" :initialFavouriteCount="podcast.favourite_count" :podcast_id="podcast.id" />
     </div>
   </section>
 </template>
@@ -24,15 +24,18 @@ import Modal from './Modal.vue'
 import axios from 'axios'
 import { usePodcastStore } from '../stores/podcastStore'
 import Toggle from './Toggle.vue'
+import { useToast } from 'vue-toastification'
 
 export default {
     name: "MainPage",
     components: { Card, Modal, Toggle },
     setup() {
         const podcastStore = usePodcastStore()
+        const toast = useToast()
 
         return {
-            podcastStore
+            podcastStore,
+            toast
         }
     },
     data() {
@@ -63,6 +66,7 @@ export default {
             }
             catch(err) {
                 console.log(err);
+                this.toast.error(err.message)
             }
         },
         showModal() {
@@ -87,6 +91,7 @@ export default {
             catch (err)
             {
                 console.log(err);
+                this.toast.error(err.message)
             }
         }
     },

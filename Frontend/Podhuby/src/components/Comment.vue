@@ -96,6 +96,7 @@ import { useUserStore } from '../stores/userStore'
 import { ref } from 'vue'
 import Modal from './Modal.vue'
 import InputField from './InputField.vue';
+import { useToast } from 'vue-toastification'
 
 export default {
     name: 'Comment',
@@ -131,11 +132,13 @@ export default {
         const comments = ref([])
         const userStore = useUserStore()
         const content = ref(props.data.content)
+        const toast = useToast()
 
         return {
             userStore,
             comments,
-            content
+            content,
+            toast
         }
     },
     computed: {
@@ -179,10 +182,12 @@ export default {
                 const result = await axios.patch('/podcasts/edit/comment', formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded', withCredentials: true }, baseURL: '/api'})
                 console.log(result);
                 this.content = this.commentEditContent
+                this.toast.success(result.data.message)
             }
             catch (err)
             {
                 console.log(err);
+                this.toast.error(err.response.data.message)
             }
             finally
             {
@@ -202,10 +207,12 @@ export default {
                 const result = await axios.delete( '/podcasts/comment',  { data: requestData, header: { 'Content-Type': 'application/json' , withCredentials: true }, baseURL: '/api' } )
                 console.log(result);
                 this.$emit('deleteMe', this.data.id)
+                this.toast.success(result.data.message)
             }
             catch (err)
             {
                 console.log(err);
+                this.toast.error(err.response.data.message)
             }
         },
         handleDeleteMe(commId) {
@@ -250,10 +257,12 @@ export default {
                 const result = await axios.post('/podcasts/submit/comment', formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded', withCredentials: true }, baseURL: '/api'})
                 console.log(result);
                 this.comments.unshift(result.data.comment)
+                this.toast.success(result.data.message)
             }
             catch (err)
             {
                 console.log(err);
+                this.toast.error(err.response.data.message)
             }
             finally
             {
@@ -276,11 +285,13 @@ export default {
                 console.log(result);
                 console.log(result.data.message);
                 this.$refs.reportModal.showing = false
+                this.toast.success(result.data.message)
                 this.timeoutReport()
             }
             catch (err)
             {
                 console.log(err);
+                this.toast.error(err.response.data.message)
             }
         },
         timeoutReport() {

@@ -560,46 +560,6 @@ video {
   inset: 0px;
 }
 
-.left-1 {
-  left: 0.25rem;
-}
-
-.end-8 {
-  inset-inline-end: 2rem;
-}
-
-.left-10 {
-  left: 2.5rem;
-}
-
-.left-64 {
-  left: 16rem;
-}
-
-.left-96 {
-  left: 24rem;
-}
-
-.left-full {
-  left: 100%;
-}
-
-.left-3\/4 {
-  left: 75%;
-}
-
-.left-auto {
-  left: auto;
-}
-
-.right-0 {
-  right: 0px;
-}
-
-.top-0 {
-  top: 0px;
-}
-
 .right-2 {
   right: 0.5rem;
 }
@@ -749,10 +709,6 @@ video {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.grid-cols-3 {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
 .flex-row {
   flex-direction: row;
 }
@@ -777,10 +733,6 @@ video {
   align-items: stretch;
 }
 
-.justify-end {
-  justify-content: flex-end;
-}
-
 .justify-center {
   justify-content: center;
 }
@@ -803,6 +755,10 @@ video {
 
 .overflow-hidden {
   overflow: hidden;
+}
+
+.overflow-x-auto {
+  overflow-x: auto;
 }
 
 .text-ellipsis {
@@ -859,6 +815,10 @@ video {
 .bg-mainColor {
   --tw-bg-opacity: 1;
   background-color: rgb(24 24 24 / var(--tw-bg-opacity));
+}
+
+.p-1 {
+  padding: 0.25rem;
 }
 
 .p-2 {
@@ -1235,6 +1195,10 @@ img.card-heart {
 
   .lg\:items-end {
     align-items: flex-end;
+  }
+
+  .lg\:items-stretch {
+    align-items: stretch;
   }
 
   .lg\:justify-end {

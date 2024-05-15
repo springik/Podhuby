@@ -19,8 +19,8 @@
                     Genres:
                     </h2>
                 </div>
-                <div class="text-lg lg:flex lg:flex-row gap-4 lg:justify-center items-center grid grid-cols-3">
-                    <div v-for="name in podcastData.genres" :key="name" class="rounded-full bg-accentColor p-2 lg:p-3">
+                <div class="text-lg lg:flex lg:flex-row gap-4 lg:justify-center lg:items-stretch items-center grid grid-cols-2">
+                    <div v-for="name in podcastData.genres" :key="name" class="rounded-full bg-accentColor p-2 lg:p-3 text-center overflow-x-auto">
                         <p class="capitalize">
                             {{ name }}
                         </p>
@@ -28,7 +28,13 @@
                 </div>
             </div>
             </div>
+            <div class="flex justify-center">
+                <h2 class="py-5 text-xl lg:text-3xl text-white">
+                    Links:
+                </h2>
+            </div>
             <div class="flex flex-row justify-center items-top gap-12 p-4">
+                
                 <div v-if="podcastData.youtube_link != null" class="py-4">
                     <a :href="podcastData.youtube_link">
                         <img class="w-28" src="/youtube-logo.png" alt="youtube link">
@@ -43,15 +49,13 @@
             <div class="text-white flex flex-row justify-center items-stretch gap-2">
                 <div class="flex flex-row justify-center items-center">
                     <h3 class="lg:text-2xl">
-                        3.6
+                        {{ podcastData.average_rating }}
                     </h3>
-                    <img class="lg:w-8 w-4 mb-1 lg:mb-2.5" src="/star.svg" alt="">
+                    <img v-if="podcastData.average_rating != 'No Ratings'" class="lg:w-8 w-4 mb-1 lg:mb-2.5" src="/star.svg" alt="purple star">
                 </div>
-                <div>
-                    <h3 class="text-xs">
-                        Placeholder for rating element
-                    </h3>
-                </div>
+            </div>
+            <div class="flex flex-row justify-center items-center">
+                <Rating @onRate="handleRate" />
             </div>
         </section>
         <!-- separator -->
@@ -74,7 +78,7 @@
                     <button title="Get More Comments" @click="getComments" class="submit-btn-min mb-4 lg:mb-8 p-2">
                         Show more comments
                     </button>
-                </div>
+            </div>
         </section>
     </section>
 </template>
@@ -84,13 +88,15 @@ import axios from 'axios';
 import Comment from '../components/Comment.vue'
 import { usePodcastStore } from '../stores/podcastStore'
 import { useUserStore } from '../stores/userStore'
+import { useToast } from 'vue-toastification'
+import Rating from './Rating.vue';
 
 export default {
     name: 'Podcast',
-    components: { Comment },
+    components: { Comment, Rating },
     data() {
         return {
-            podcastData: {  },
+            podcastData: { },
             comments: [],
             pageCount: 0,
             limit: 10,
@@ -101,10 +107,12 @@ export default {
     setup() {
         const podcastStore = usePodcastStore()
         const userStore = useUserStore()
+        const toast = useToast()
 
         return {
             podcastStore,
-            userStore
+            userStore,
+            toast
         }
     },
     async mounted() {
@@ -142,6 +150,10 @@ export default {
             }
             
         },
+        handleRate(rating) {
+            //TODO: implement
+            console.log(rating, 'this is the rating');
+        },
         handleDeleteMe(commId) {
             console.log('handling delete');
             this.comments = this.comments.filter(c => c.id !== commId)
@@ -166,6 +178,7 @@ export default {
             catch (err)
             {
                 console.log(err);
+                this.toast.error(err.response.data.message)
             }
         },
         async addComment() {
@@ -182,10 +195,12 @@ export default {
                 const result = await axios.post('/podcasts/submit/comment', formData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded', withCredentials: true }, baseURL: '/api' })
                 console.log(result);
                 this.comments.unshift(result.data.comment)
+                this.toast.success(result.data.message)
             }
             catch (err)
             {
                 console.log(err);
+                this.toast.error(err.response.data.message)
             }
         }
     }

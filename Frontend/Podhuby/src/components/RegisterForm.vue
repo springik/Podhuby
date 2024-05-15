@@ -13,10 +13,18 @@
 <script>
 import InputField from './InputField.vue'
 import axios from 'axios'
+import { useToast } from "vue-toastification"
 
 export default {
     name: 'RegisterForm',
     components: { InputField },
+    setup() {
+        const toast = useToast()
+
+        return {
+            toast
+        }
+    },
     data() {
         return {
             results: [],
@@ -48,12 +56,15 @@ export default {
             
             axios.post('/users/register', formData, {headers: {'Content-Type': 'application/x-www-form-urlencoded', withCredentials: true}, baseURL: '/api'})
             .then((res) => {
-                if(res.status == 200)
+                if(res.status == 200) {
                     this.$router.push('/login')
+                    this.toast.success(res.data.message)
+                }
                 this.results = res.data
             })
             .catch((err) => {
                 console.log(err)
+                this.toast.error(err.response.data.message)
                 this.results.message = err.response.data.message
             })
         },

@@ -46,6 +46,12 @@ podcastsRouter.get('/all/:count?', async (req, res) => {
 
     if(podcasts.length == 0) 
       return res.status(404).json({ message: 'No podcasts found' })
+
+    podcasts.forEach(podcast => {
+      if(podcast.average_rating === null) {
+        podcast.average_rating = 'No Ratings'
+      }
+    })
     
     console.log(podcasts);
     res.status(200).json(podcasts)
@@ -99,6 +105,11 @@ podcastsRouter.get('/:podcastTitle', async (req, res) => {
 
     if(podcasts.length == 0) 
       return res.status(404).json({ message: 'No podcasts found' })
+    podcasts.forEach(podcast => {
+      if(podcast.average_rating === null) {
+        podcast.average_rating = 'No Ratings'
+      }
+    })
     
     console.log(podcasts);
     res.status(200).json(podcasts)
@@ -109,10 +120,34 @@ podcastsRouter.get('/:podcastTitle', async (req, res) => {
     res.status(500).json({ message: 'Something went wrong' })
   }
 })
+podcastsRouter.get('/favourite/count/:podcastId', async (req, res) => {
+  try
+  {
+    const { podcastId } = req.params
+    const count = await db.User_favourite_Podcast.findAll({
+      attributes: [
+        [db.sequelize.cast(db.sequelize.fn('count', db.sequelize.fn('distinct', db.sequelize.col('User_favourite_Podcast.id'))), 'integer'), 'favourite_count']
+      ],
+      where: {
+        podcast_id: podcastId
+      }
+    })
+    if(count === null)
+      return res.status(404).json({ message: 'Not found' })
+
+    const fav_count = count[0].dataValues.favourite_count
+    return res.status(200).json({ message: 'Successfully got count', count: fav_count })
+  }
+  catch (err)
+  {
+    console.log(err);
+    return res.status(500).json({ message: 'Something went wrong' })
+  }
+  
+})
 podcastsRouter.post('/favourite/:podcastId', auth, async (req, res) => {
   const { podcastId } = req.params
   try {
-    console.log(req.session.data.user);
     const [user_favourite_podcast, created] = await db.User_favourite_Podcast.findOrCreate({
       where: {
         podcast_id: podcastId,
@@ -134,6 +169,26 @@ podcastsRouter.post('/favourite/:podcastId', auth, async (req, res) => {
     console.log(err);
     res.status(500).json({ message: 'Server error' })
     return
+  }
+})
+podcastsRouter.get('/favourite/state/:podcastId', auth, async (req, res) => {
+  const { podcastId } = req.params
+
+  try
+  {
+    const user_favourite_podcast = await db.User_favourite_Podcast.findOne({
+      where: {
+        podcast_id: podcastId,
+        user_id: req.session.data.user.id
+      }
+    })
+
+    return res.status(200).json({ state: user_favourite_podcast !== null })
+  }
+  catch (err)
+  {
+    console.log(err);
+    return res.status(500).json({ message: 'Something went wrong' })
   }
 })
 podcastsRouter.post('/rate/:podcastId', auth, async (req, res) => {

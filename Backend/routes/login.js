@@ -33,7 +33,7 @@ loginRouter.post('/login',body('userEmail').isEmail().normalizeEmail(), body('us
         }
 
         req.session.data.user = result
-        res.status(200).json({ message: "Successfully logged in", user: result })
+        res.status(200).json({ user: result, message: "Successfully logged in" })
     }).catch((err) => {
         console.log(err);
         res.status(500).json({ message: "Something went wrong", code: err.code })

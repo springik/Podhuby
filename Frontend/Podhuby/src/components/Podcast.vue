@@ -29,7 +29,7 @@
             </div>
             </div>
             <div class="flex justify-center">
-                <h2 class="py-5 text-xl lg:text-3xl text-white">
+                <h2 class="pt-4 text-xl lg:text-3xl text-white">
                     Links:
                 </h2>
             </div>
@@ -48,13 +48,13 @@
             </div>
             <div class="text-white flex flex-row justify-center items-stretch gap-2">
                 <div class="flex flex-row justify-center items-center">
-                    <h3 class="lg:text-2xl">
+                    <h3 class="lg:text-2xl mr-1 lg:mr-2">
                         {{ podcastData.average_rating }}
                     </h3>
                     <img v-if="podcastData.average_rating != 'No Ratings'" class="lg:w-8 w-4 mb-1 lg:mb-2.5" src="/star.svg" alt="purple star">
                 </div>
             </div>
-            <div class="flex flex-row justify-center items-center">
+            <div v-if="this.userStore.user !== null" class="flex justify-center items-center">
                 <Rating @onRate="handleRate" />
             </div>
         </section>
@@ -150,9 +150,23 @@ export default {
             }
             
         },
-        handleRate(rating) {
-            //TODO: implement
+        async handleRate(rating) {
             console.log(rating, 'this is the rating');
+            try
+            {
+                const url = `/podcasts/rate/${this.podcastData.id}`
+                const data =
+                {
+                    score: rating
+                }
+                const results = await axios.post(url, data, { header: { withCredentials: true }, baseURL: '/api' })
+                this.toast.success(results.data.message)
+            }
+            catch (err)
+            {
+                console.log(err);
+                this.toast.error(err.response.data.message)
+            }
         },
         handleDeleteMe(commId) {
             console.log('handling delete');

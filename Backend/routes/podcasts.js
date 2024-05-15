@@ -15,7 +15,7 @@ podcastsRouter.get('/all/:count?', async (req, res) => {
       attributes: [
         '*',
         [db.sequelize.fn('array_agg', db.sequelize.col('Genres.name')), 'genres'],
-        [db.sequelize.fn('avg', db.sequelize.col('Podcast_Ratings.score')), 'average_rating'],
+        [db.sequelize.cast(db.sequelize.fn('avg', db.sequelize.col('Podcast_Ratings.score')), 'decimal(10,2)'), 'average_rating'],
         [db.sequelize.cast(db.sequelize.fn('count', db.sequelize.fn('distinct', db.sequelize.col('Users.id'))), 'integer'), 'favourite_count']
       ],
       include: [
@@ -51,6 +51,10 @@ podcastsRouter.get('/all/:count?', async (req, res) => {
       if(podcast.average_rating === null) {
         podcast.average_rating = 'No Ratings'
       }
+      else
+      {
+        podcast.average_rating = parseFloat(podcast.average_rating)
+      }
     })
     
     console.log(podcasts);
@@ -71,7 +75,7 @@ podcastsRouter.get('/:podcastTitle', async (req, res) => {
       attributes: [
         '*',
         [db.sequelize.fn('array_agg', db.sequelize.col('Genres.name')), 'genres'],
-        [db.sequelize.fn('avg', db.sequelize.col('Podcast_Ratings.score')), 'average_rating'],
+        [db.sequelize.cast(db.sequelize.fn('avg', db.sequelize.col('Podcast_Ratings.score')), 'decimal(10,2)'), 'average_rating'],
         [db.sequelize.cast(db.sequelize.fn('count', db.sequelize.fn('distinct', db.sequelize.col('Users.id'))), 'integer'), 'favourite_count']
       ],
       where: {
@@ -108,6 +112,10 @@ podcastsRouter.get('/:podcastTitle', async (req, res) => {
     podcasts.forEach(podcast => {
       if(podcast.average_rating === null) {
         podcast.average_rating = 'No Ratings'
+      }
+      else
+      {
+        podcast.average_rating = parseFloat(podcast.average_rating)
       }
     })
     
@@ -225,6 +233,9 @@ podcastsRouter.post('/rate/:podcastId', auth, async (req, res) => {
     console.log(err);
     return res.status(500).json({ message: 'Something went wrong' })
   }
+})
+podcastsRouter.get('/rate/current', auth, (req, res) => {
+
 })
 
 podcastsRouter.post('/youtube/submit', async (req, res) => {

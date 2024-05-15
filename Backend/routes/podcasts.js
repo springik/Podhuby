@@ -15,7 +15,8 @@ podcastsRouter.get('/all/:count?', async (req, res) => {
       attributes: [
         '*',
         [db.sequelize.fn('array_agg', db.sequelize.col('Genres.name')), 'genres'],
-        [db.sequelize.fn('avg', db.sequelize.col('Podcast_Ratings.score')), 'average_rating']
+        [db.sequelize.fn('avg', db.sequelize.col('Podcast_Ratings.score')), 'average_rating'],
+        [db.sequelize.cast(db.sequelize.fn('count', db.sequelize.fn('distinct', db.sequelize.col('Users.id'))), 'integer'), 'favourite_count']
       ],
       include: [
         {
@@ -30,6 +31,13 @@ podcastsRouter.get('/all/:count?', async (req, res) => {
           attributes: [],
           required: false,
           duplicating: false
+        },
+        {
+          model: db.User,
+          attributes: [],
+          through: { attributes: [ ] },
+          required: false,
+          duplicating: false
         }
       ],
       group: [ db.sequelize.col('Podcast.id') ],
@@ -40,11 +48,6 @@ podcastsRouter.get('/all/:count?', async (req, res) => {
       return res.status(404).json({ message: 'No podcasts found' })
     
     console.log(podcasts);
-    /*
-    podcasts.forEach(podcast => {
-      podcast.genresString = podcast.genres.map(genre => genre.name)
-    });
-    */
     res.status(200).json(podcasts)
   }
   catch (err)
@@ -59,16 +62,34 @@ podcastsRouter.get('/:podcastTitle', async (req, res) => {
   try
   {
     const podcasts = await db.Podcast.findAll({
+      attributes: [
+        '*',
+        [db.sequelize.fn('array_agg', db.sequelize.col('Genres.name')), 'genres'],
+        [db.sequelize.fn('avg', db.sequelize.col('Podcast_Ratings.score')), 'average_rating'],
+        [db.sequelize.cast(db.sequelize.fn('count', db.sequelize.fn('distinct', db.sequelize.col('Users.id'))), 'integer'), 'favourite_count']
+      ],
       where: {
         title: podcastTitle
       },
-      attributes: ['*', [db.sequelize.fn('array_agg', db.sequelize.col('Genres.name')), 'genres']],
       include: [
         {
           model: db.Genre,
           attributes: [],
           through: { attributes: [] },
           required: true,
+          duplicating: false
+        },
+        {
+          model: db.Podcast_Rating,
+          attributes: [],
+          required: false,
+          duplicating: false
+        },
+        {
+          model: db.User,
+          attributes: [],
+          through: { attributes: [ ] },
+          required: false,
           duplicating: false
         }
       ],
@@ -91,6 +112,7 @@ podcastsRouter.get('/:podcastTitle', async (req, res) => {
 podcastsRouter.post('/favourite/:podcastId', auth, async (req, res) => {
   const { podcastId } = req.params
   try {
+    console.log(req.session.data.user);
     const [user_favourite_podcast, created] = await db.User_favourite_Podcast.findOrCreate({
       where: {
         podcast_id: podcastId,

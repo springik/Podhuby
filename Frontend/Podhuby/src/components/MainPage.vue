@@ -4,7 +4,7 @@
         <fieldset class="mb-4">
             <legend class="mb-2">Genres</legend>
             <div class="grid lg:grid-cols-4 grid-cols-2 lg:gap-4 gap-2">
-                <Toggle v-for="(genre, index) in genres" type="genre" :toggleText="genre.name" :key="index" @choiceChange="handleChoiceChange" />
+                <Toggle v-for="genre in genres" type="genre" :toggleText="genre.name" :key="genre.id" @choiceChange="handleChoiceChange" />
             </div>
         </fieldset>
     </Modal>
@@ -13,7 +13,7 @@
     </button>
 
     <div class="main-grid">
-        <Card v-for="(podcast, index) in filteredPodcasts" :key="index" :heading="podcast.title" :imgPath="podcast.image_path" :description="podcast.description" :favouriteCount="index" :podcast_id="podcast.id" />
+        <Card v-for="(podcast, index) in filteredPodcasts" :key="index" :heading="podcast.title" :imgPath="podcast.image_path" :description="podcast.description" :favouriteCount="podcast.favourite_count" :podcast_id="podcast.id" />
     </div>
   </section>
 </template>
@@ -39,7 +39,7 @@ export default {
         return {
             podcasts: [],
             filters: { genres: [] },
-            genres: [ { id: 1, name: "true crime" }, {id: 2, name: "news"}, { id: 3, name: "comedy" } ]
+            genres: [ ]
         }
     },
     computed: {
@@ -76,10 +76,23 @@ export default {
             }
             else if (data.type === 'genre')
                 this.filters.genres = this.filters.genres.filter((g) => g !== data.text.toLowerCase())
+        },
+        async getGenres() {
+            try
+            {
+                const results = await axios.get('/genres/all', { header: { withCredentials: true }, baseURL: '/api' })
+                console.log(results);
+                return results.data
+            }
+            catch (err)
+            {
+                console.log(err);
+            }
         }
     },
-    mounted() {
+    async mounted() {
         this.getPodcasts(50, 0)
+        this.genres = await this.getGenres()
     }
 }
 </script>

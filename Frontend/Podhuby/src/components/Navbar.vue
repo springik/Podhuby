@@ -5,7 +5,30 @@
       <router-link class="border-b-2 border-tertiaryColor border-dotted text-center place-content-center text-tertiaryColor" to="/register">Register</router-link>
       <router-link class="border-b-2 border-tertiaryColor border-dotted text-center text-tertiaryColor" v-if="userStore.user == null" to="/login">Login</router-link>
         <div v-else>
-          <Dropdown />
+          <Dropdown title="Logout">
+            <template #btn>
+              <p class="border-b-2 border-tertiaryColor border-dotted text-center text-tertiaryColor">
+                Account
+              </p>
+            </template>
+            <template #menu>
+              <ul class="text-white">
+                <li class="py-0.5">
+                  <button @click="logout">
+                    Logout
+                  </button>
+                </li>
+                <li class="py-0.5">
+                  <button @click="navToProfile">
+                    Profile
+                  </button>
+                </li>
+              </ul>
+            </template>
+          </Dropdown>
+          <!--<a class="border-b-2 border-tertiaryColor border-dotted text-center place-content-center text-tertiaryColor" href="#" @click.prevent="logout">
+            Logout
+          </a>-->
         </div>
   </div>
   </nav>
@@ -16,21 +39,48 @@
 <script>
 import { useUserStore } from '../stores/userStore'
 import Dropdown from './Dropdown.vue'
-//import '../assets/styles.css'
+import { useToast } from 'vue-toastification'
+import axios from 'axios'
 
 export default {
   name: 'Navbar',
   components: { Dropdown },
   setup() {
     const userStore = useUserStore()
+    const toast = useToast()
 
       return {
-        userStore
+        userStore,
+        toast
       }
   },
   data() {
     return {
 
+    }
+  },
+  methods: {
+    async logout() {
+      console.log('logging out...');
+      const url = `/api/users/logout`
+      try
+      {
+        const results = await axios.post(url, { header: { withCredentials: true } })
+        console.log(results);
+        this.deleteUserFromStore()
+        this.toast.success(results.data.message)
+      }
+      catch (err)
+      {
+        console.log(err);
+        this.toast.error(err?.response?.data.message)
+      }
+    },
+    deleteUserFromStore() {
+      this.userStore.logout()
+    },
+    navToProfile() {
+      this.$router.push('/profile')
     }
   }
 }

@@ -23,8 +23,7 @@ const corsOptions = {
 }
 app.listen(process.env.PORT || 8080)
 
-const loginRouter = require('./routes/login')
-const registerRouter = require('./routes/register')
+const authRouter = require('./routes/authRouter.js')
 const podcastsRouter = require('./routes/podcasts.js')
 const userDataRouter = require('./routes/userdata.js')
 const commentsRouter = require('./routes/comments.js')
@@ -32,7 +31,7 @@ const adminActionsRouter = require('./routes/adminActions.js')
 const genreRouter = require('./routes/genres.js')
 const authMiddleware = require('./Middleware/auth.js')
 
-app.use('/users', cors(corsOptions), loginRouter, registerRouter)
+app.use('/users', cors(corsOptions), authRouter)
 app.use('/podcasts', cors(corsOptions), podcastsRouter, commentsRouter)
 app.use('/admin', cors(corsOptions), authMiddleware, adminActionsRouter)
 app.use('/genres', cors(corsOptions), genreRouter)

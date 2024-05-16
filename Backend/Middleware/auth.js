@@ -1,5 +1,4 @@
 const express = require('express')
-const loginRouter = require('../routes/login')
 
 module.exports = function auth(req, res, next) {
     console.log('authing...');

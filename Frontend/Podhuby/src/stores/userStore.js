@@ -7,6 +7,9 @@ export const useUserStore = defineStore('user-store', {
     actions: {
         setUser(user) {
             this.user = user
+        },
+        logout() {
+            this.user = null
         }
     },
     getters: {

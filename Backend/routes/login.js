@@ -4,6 +4,7 @@ const loginRouter = express.Router()
 const sessionPreparer = require('../Middleware/sessionPreparer.js')
 const db = require('../Sequelize/models')
 const { body, validationResult } = require('express-validator')
+const auth = require('../Middleware/auth.js')
 loginRouter.use(sessionPreparer)
 
 loginRouter.post('/login',body('userEmail').isEmail().normalizeEmail(), body('userPassword').isLength({ min: 6, max: 22 }) , (req, res) => {
@@ -12,8 +13,8 @@ loginRouter.post('/login',body('userEmail').isEmail().normalizeEmail(), body('us
         return res.status(400).json({ message: 'Invalid fields' })
     }
 
-    if(req.session.data.user != undefined || req.session.data.user != null) {
-        res.status(200).json({ message: "Successfully logged in" })
+    if(req.session.user != undefined || req.session.user != null) {
+        res.status(200).json({ message: "Already logged in" })
         return
     }
 
@@ -32,7 +33,7 @@ loginRouter.post('/login',body('userEmail').isEmail().normalizeEmail(), body('us
             return
         }
 
-        req.session.data.user = result
+        req.session.user = result
         res.status(200).json({ user: result, message: "Successfully logged in" })
     }).catch((err) => {
         console.log(err);
@@ -40,14 +41,8 @@ loginRouter.post('/login',body('userEmail').isEmail().normalizeEmail(), body('us
     });
 })
 
-loginRouter.get('/current-user', async (req, res) => {
-    if(req.session.data.user == undefined || req.session.data.user == null) {
-        res.status(403).json({ message: 'User not logged in' })
-        return
-    }
-    
-    
-    db.User.findOne({ where: { email: req.session.data.user.email } })
+loginRouter.get('/current-user', auth, async (req, res) => {
+    db.User.findOne({ where: { email: req.session.user.email } })
     .then((result) => {
         return res.status(200).json(result)
     }).catch((err) => {

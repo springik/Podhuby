@@ -159,7 +159,7 @@ podcastsRouter.post('/favourite/:podcastId', auth, async (req, res) => {
     const [user_favourite_podcast, created] = await db.User_favourite_Podcast.findOrCreate({
       where: {
         podcast_id: podcastId,
-        user_id: req.session.data.user.id
+        user_id: req.session.user.id
       }
     })
 
@@ -187,7 +187,7 @@ podcastsRouter.get('/favourite/state/:podcastId', auth, async (req, res) => {
     const user_favourite_podcast = await db.User_favourite_Podcast.findOne({
       where: {
         podcast_id: podcastId,
-        user_id: req.session.data.user.id
+        user_id: req.session.user.id
       }
     })
 
@@ -206,7 +206,7 @@ podcastsRouter.get('/rate/current', auth, async (req, res) => {
     const rating = await db.Podcast_Rating.findOne({
       where: {
         podcast_id: podcastId,
-        user_id: req.session.data.user.id
+        user_id: req.session.user.id
       }
     })
     if(rating === null)
@@ -255,14 +255,14 @@ podcastsRouter.post('/rate/:podcastId', auth, async (req, res) => {
   {
     const rating = await db.Podcast_Rating.findOne({
       where: {
-        user_id: req.session.data.user.id,
+        user_id: req.session.user.id,
         podcast_id: podcastId
       }
     })
     if(rating === null) {
       await db.Podcast_Rating.create({
         podcast_id: podcastId,
-        user_id: req.session.data.user.id,
+        user_id: req.session.user.id,
         score: score
       })
       return res.status(200).json({ message: 'Rating created' })

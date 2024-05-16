@@ -67,17 +67,11 @@ commentsRouter.get('/get-comments/:podcastId', async (req, res) => {
     
 })
 
-commentsRouter.post('/submit/comment', async (req, res) => {
-
-    if(req.session.data.user === undefined || req.session.data.user === null) {
-        res.status(401).json({ message: 'Try loging in' })
-        return
-    }
+commentsRouter.post('/submit/comment', auth, async (req, res) => {
     const { podcastId, rootId, content } = req.body
-
     try
     {
-      const comm = await db.Comment.create({ root_id: rootId, podcast_id: podcastId, author_id: req.session.data.user.id, content: content })
+      const comm = await db.Comment.create({ root_id: rootId, podcast_id: podcastId, author_id: req.session.user.id, content: content })
       await comm.save()
       const comment = await db.Comment.findOne({
         where: {
@@ -99,14 +93,8 @@ commentsRouter.post('/submit/comment', async (req, res) => {
     }    
 })
 
-commentsRouter.patch('/edit/comment', async (req, res) => {
+commentsRouter.patch('/edit/comment', auth, async (req, res) => {
     const { commentId, content } = req.body
-
-    if(req.session.data.user === undefined || req.session.data.user === null)
-    {
-      res.status(403).json({ message: 'Try logging in' })
-      return
-    }
 
     try
     {
@@ -114,7 +102,7 @@ commentsRouter.patch('/edit/comment', async (req, res) => {
       const comm = await db.Comment.findOne({
         where: {
           id: commentId,
-          author_id: req.session.data.user.id
+          author_id: req.session.user.id
         }
       })
       if(comm === undefined || comm === null) {
@@ -135,19 +123,12 @@ commentsRouter.patch('/edit/comment', async (req, res) => {
 })
 
 commentsRouter.delete('/comment', auth, async (req, res) => {
-  /*
-  if(req.session.data.user === undefined || req.session.data.user === null) {
-    res.status(403).json({ message: 'Try logging in' })
-    return
-  }
-
-  */
   const { commentId } = req.body
-  console.log(req.session.data.user);
+  console.log(req.session.user);
 
   try {
     let comment = undefined
-    if(req.session.data.user.permision_level === 'admin') {
+    if(req.session.user.permision_level === 'admin') {
       comment = await db.Comment.findOne({
         where: {
           id: commentId
@@ -159,7 +140,7 @@ commentsRouter.delete('/comment', auth, async (req, res) => {
       comment = await db.Comment.findOne({
         where: {
           id: commentId,
-          author_id: req.session.data.user.id
+          author_id: req.session.user.id
         }
       })
     }
@@ -184,7 +165,7 @@ commentsRouter.post('/report/comment', auth, async (req, res) => {
   {
     const report = await db.Comment_Report.create({
       reason: reason,
-      reporter_id: req.session.data.user.id,
+      reporter_id: req.session.user.id,
       comment_id: commentId
     })
     console.log(report);

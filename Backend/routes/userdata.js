@@ -2,24 +2,19 @@ const express = require('express')
 const userDataRouter = express.Router()
 const sessionPreparer = require('../Middleware/sessionPreparer.js')
 const db = require('../Sequelize/models')
+const auth = require('../Middleware/auth.js')
 
 userDataRouter.use(sessionPreparer)
 
-userDataRouter.get('/current-user', async (req, res) => {
-    if(req.session.data.user == undefined || req.session.data.user == null)
-        res.status(403).json({ message: 'User not logged in' })
-    
-    
-    db.User.findOne({ where: { email: req.session.data.user.email } })
+userDataRouter.get('/current-user', auth, async (req, res) => {
+    db.User.findOne({ where: { email: req.session.user.email } })
     .then((result) => {
         console.log(result);
-        res.status(200).json(result)
-        return
+        return res.status(200).json(result)
     })
     .catch((err) => {
         console.log(err);
-        res.status(500).json({ message: 'Fetch failed' })
-        return
+        return res.status(500).json({ message: 'Fetch failed' })
     });
 })
 

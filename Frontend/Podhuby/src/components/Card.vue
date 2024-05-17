@@ -10,8 +10,10 @@
         </p>
     </div>
     <div class="card-reactions">
-        <img v-if="userStore.user !== null" :disabled="disableFavBtn" class="card-heart" :src="iconSource" alt="heart icon" @click.stop="toggleFavourite">
         <span>{{ favouriteCount }}</span>
+        <button class="ml-1 lg:ml-3" :disabled="disFavBtn" @click.stop="toggleFavourite">
+            <img class="card-heart" :src="iconSource" alt="heart icon" >
+        </button>
     </div>
   </div>
 </template>
@@ -46,6 +48,13 @@ export default {
             this.checkState()
         }
         this.getCount()
+    },
+    computed: {
+        disFavBtn() {
+            if(this.userStore.user === null)
+                return true
+            return this.disableFavBtn
+        }
     },
     methods: {
         async toggleFavourite() {

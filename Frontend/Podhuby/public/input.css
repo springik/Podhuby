@@ -72,6 +72,9 @@ div.grid-item {
     background-color: black;
     color: white;
 }
+.box-shadow {
+    box-shadow: 4px 4px 0 0 var(--accent-color);
+}
 img.card-heart {
     height: 1.5rem;
     width: 1.5rem;

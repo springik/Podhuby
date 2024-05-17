@@ -12,23 +12,23 @@
               </p>
             </template>
             <template #menu>
-              <ul class="text-white">
-                <li class="py-0.5">
-                  <button @click="logout">
-                    Logout
-                  </button>
-                </li>
-                <li class="py-0.5">
+              <ul class="text-white text-center w-24">
+                <li>
                   <button @click="navToProfile">
                     Profile
+                  </button>
+                </li>
+                <div class="flex justify-center">
+                  <hr class="my-1 lg:my-2 w-3/4 lg:w-2/3 separator-col">
+                </div>
+                <li>
+                  <button @click="logout">
+                    Logout
                   </button>
                 </li>
               </ul>
             </template>
           </Dropdown>
-          <!--<a class="border-b-2 border-tertiaryColor border-dotted text-center place-content-center text-tertiaryColor" href="#" @click.prevent="logout">
-            Logout
-          </a>-->
         </div>
   </div>
   </nav>

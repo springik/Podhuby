@@ -6,7 +6,7 @@
     </button>
 
     <!-- Menu container -->
-    <div v-if="show" ref="dropdownMenu" class="absolute top-full mt-1 bg-accentColor rounded text-sm p-2 left-1/2 -translate-x-1/2">
+    <div v-if="show" ref="dropdownMenu" class="box-shadow absolute top-full mt-1 bg-mainColor rounded text-sm p-2 left-1/2 -translate-x-1/2">
       <slot name="menu" />
     </div>
   </div>

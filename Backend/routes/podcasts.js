@@ -14,11 +14,18 @@ podcastsRouter.get('/all/:count?', async (req, res) => {
     const podcasts = await db.Podcast.findAll({
       attributes: [
         '*',
-        [db.sequelize.fn('array_agg', db.sequelize.col('Genres.name')), 'genres'],
+        [db.sequelize.fn('array_agg', db.sequelize.fn('distinct', db.sequelize.col('Genres.name'))), 'genres'],
         [db.sequelize.cast(db.sequelize.fn('avg', db.sequelize.col('Podcast_Ratings.score')), 'decimal(10,2)'), 'average_rating'],
         [db.sequelize.cast(db.sequelize.fn('count', db.sequelize.fn('distinct', db.sequelize.col('Users.id'))), 'integer'), 'favourite_count']
       ],
       include: [
+        {
+          model: db.User,
+          attributes: [],
+          through: { attributes: [ ] },
+          required: false,
+          duplicating: false
+        },
         {
           model: db.Genre,
           attributes: [],
@@ -31,13 +38,6 @@ podcastsRouter.get('/all/:count?', async (req, res) => {
           attributes: [],
           required: false,
           duplicating: false
-        },
-        {
-          model: db.User,
-          attributes: [],
-          through: { attributes: [ ] },
-          required: false,
-          duplicating: false
         }
       ],
       group: [ db.sequelize.col('Podcast.id') ],
@@ -48,13 +48,10 @@ podcastsRouter.get('/all/:count?', async (req, res) => {
       return res.status(404).json({ message: 'No podcasts found' })
 
     podcasts.forEach(podcast => {
-      if(podcast.average_rating === null) {
+      if(podcast.average_rating === null)
         podcast.average_rating = 'No Ratings'
-      }
       else
-      {
         podcast.average_rating = parseFloat(podcast.average_rating)
-      }
     })
     
     console.log(podcasts);
@@ -74,7 +71,7 @@ podcastsRouter.get('/:podcastTitle', async (req, res) => {
     const podcasts = await db.Podcast.findAll({
       attributes: [
         '*',
-        [db.sequelize.fn('array_agg', db.sequelize.col('Genres.name')), 'genres'],
+        [db.sequelize.fn('array_agg', db.sequelize.fn('distinct', db.sequelize.col('Genres.name'))), 'genres'],
         [db.sequelize.cast(db.sequelize.fn('avg', db.sequelize.col('Podcast_Ratings.score')), 'decimal(10,2)'), 'average_rating'],
         [db.sequelize.cast(db.sequelize.fn('count', db.sequelize.fn('distinct', db.sequelize.col('Users.id'))), 'integer'), 'favourite_count']
       ],

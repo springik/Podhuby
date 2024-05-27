@@ -285,49 +285,6 @@ podcastsRouter.post('/youtube/submit', async (req, res) => {
   const url = `https://www.googleapis.com/youtube/v3/channels?part=snippet&forHandle=${channelHandle}&key=${process.env.YOUTUBE_API_KEY}`
   const userGenres = req.body.genres.map((g) => g.toLowerCase())
 
-  try {
-    const dataFromYtb = await axios.get(url)
-    const podcastData = {
-      title: dataFromYtb.data.items[0].snippet.title,
-      description: dataFromYtb.data.items[0].snippet.description,
-      youtube_link: "https://youtube.com/" + dataFromYtb.data.items[0].snippet.customUrl,
-      spotify_link: null,
-      third_link: null,
-      image_path: dataFromYtb.data.items[0].snippet.thumbnails.default.url
-    }
-    // Create a transaction
-    const transaction = await db.sequelize.transaction();
-    try {
-      // Create the podcast
-      const podcast = await db.Podcast.create(podcastData, { transaction });
-      // Create or find genres and associate with podcast
-      const genrePromises = userGenres.map(async (genreName) => {
-        const [genre, created] = await db.Genre.findOrCreate({
-          where: { name: genreName },
-          defaults: { name: genreName },
-          transaction
-        });
-        return genre.id
-      });
-      const genreIds = await Promise.all(genrePromises)
-      //console.log(genreIds);
-      await podcast.save()
-      await podcast.setGenres(genreIds, { transaction })
-      // Commit the transaction
-      await transaction.commit();
-      res.status(201).json(podcast);
-    } catch (error) {
-      // Rollback the transaction
-      await transaction.rollback();
-      console.error(error);
-      res.status(500).json({ message: 'Error creating podcast' });
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error creating podcast' });
-  }
-
-  /*
   try
   {
     const dataFromYtb = await axios.get(url)
@@ -339,43 +296,90 @@ podcastsRouter.post('/youtube/submit', async (req, res) => {
       third_link: null,
       image_path: dataFromYtb.data.items[0].snippet.thumbnails.default.url
     }
-
-    // Unique check just in case :p
-    const p = await db.Podcast.findOne({
-      where:
-      {
-        title: podcastData.title
-      }
-    })
-    if(p){
-      res.status(409).json({ message: 'Podcast already exists' })
-      return
-    }
-    const podcast = await db.Podcast.create(podcastData)
-    
-    const genrePromises = userGenres.map(async (genreName) => {
-      const [genre, created] = await db.Genre.findOrCreate({
-        where: { name: genreName },
-        defaults: { name: genreName },
+    const transaction = await db.sequelize.transaction();
+    try
+    {
+      const podcast = await db.Podcast.create(podcastData, { transaction });
+      const genrePromises = userGenres.map(async (genreName) => {
+        const [genre, created] = await db.Genre.findOrCreate({
+          where: { name: genreName },
+          defaults: { name: genreName },
+          transaction
+        });
+        return genre.id
       });
-      await podcast.addGenre(genre);
-    });
-
-    await Promise.all(genrePromises)
-
-    res.status(200).json(podcast)
+      const genreIds = await Promise.all(genrePromises)
+      await podcast.save()
+      await podcast.setGenres(genreIds, { transaction })
+      await transaction.commit();
+      res.status(201).json(podcast);
+    }
+    catch (error)
+    {
+      await transaction.rollback();
+      console.error(error);
+      res.status(500).json({ message: 'Error creating podcast' });
+    }
   }
-  catch (err)
+  catch (error)
   {
-    console.log(err);
-    res.status(500).json({ message: 'Server error' })
+    console.error(error);
+    res.status(500).json({ message: 'Error creating podcast' });
   }
-  */
-
-
-  })
+})
 podcastsRouter.post('/spotify/submit', async (req, res) => {
   const token = await getSpotifyToken()
+  const { podcastId } = req.body
+  const url = `https://api.spotify.com/v1/shows/${podcastId}`
+  const userGenres = req.body.genres.map((g) => g.toLowerCase())
+
+  try
+  {
+    const dataFromSpotify = await axios.get(url, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json'
+      }
+    })
+    console.log(dataFromSpotify);
+    const podcastData = {
+      title: dataFromSpotify.data.name,
+      description: dataFromSpotify.data.description,
+      youtube_link: dataFromSpotify.data.external_urls.youtube || null,
+      spotify_link: dataFromSpotify.data.external_urls.spotify,
+      third_link: null,
+      image_path: dataFromSpotify.data.images[0].url
+    }
+    const transaction = await db.sequelize.transaction();
+    try
+    {
+      const podcast = await db.Podcast.create(podcastData, { transaction });
+      const genrePromises = userGenres.map(async (genreName) => {
+        const [genre, created] = await db.Genre.findOrCreate({
+          where: { name: genreName },
+          defaults: { name: genreName },
+          transaction
+        });
+        return genre.id
+      });
+      const genreIds = await Promise.all(genrePromises)
+      await podcast.save()
+      await podcast.setGenres(genreIds, { transaction })
+      await transaction.commit();
+      res.status(201).json(podcast);
+    }
+    catch (error)
+    {
+      await transaction.rollback();
+      console.error(error);
+      res.status(500).json({ message: 'Error creating podcast' });
+    }
+  }
+  catch (error)
+  {
+    console.error(error);
+    res.status(500).json({ message: 'Error creating podcast' });
+  }
 })
 
 const getGenresFromDB = async function(genresToSearch) {
@@ -392,15 +396,17 @@ const getGenresFromDB = async function(genresToSearch) {
   return results
 }
 const getSpotifyToken = async () => {
-  try {
-    const response = await axios.post('https://accounts.spotify.com/api/token', { 'grant-type': 'client-credentials' }, { headers: { 'Content-Type': 'application/x-www-form-urlencoded', Authorization: 'Basic ' + `${process.env.SPOTIFY_CLIENT_ID}` + ':' + `${process.env.SPOTIFY_CLIENT_SECRET}` } })
-    console.log(response);
-    return response
+  try
+  {
+    const url = `https://accounts.spotify.com/api/token`
+    const auth = Buffer.from(`${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`).toString('base64')
+    const response = await axios.post(url, { grant_type: 'client_credentials' }, { headers: { 'Content-Type': 'application/x-www-form-urlencoded', Authorization: `Basic ${auth}` } })
+    console.log(response.data);
+    return response.data.access_token
   }
   catch(err)
   {
     console.log(err);
-    throw err
   }
 }
 const bulkFindOrCreateGenres = async (model, data) => {

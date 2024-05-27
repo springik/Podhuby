@@ -36,12 +36,12 @@
             <div class="flex flex-row justify-center items-top gap-12 p-4">
                 
                 <div v-if="podcastData.youtube_link != null" class="py-4">
-                    <a :href="podcastData.youtube_link">
+                    <a :href="podcastData.youtube_link" target="_blank">
                         <img class="w-28" src="/youtube-logo.png" alt="youtube link">
                     </a>
                 </div>
                 <div v-if="podcastData.spotify_link != null" class="py-4">
-                    <a href="#">
+                    <a :href="podcastData.spotify_link" target="_blank">
                         <img class="w-28" src="/spotify-logo.png" alt="spotify link">
                     </a>
                 </div>

@@ -19,6 +19,8 @@ export default {
     },
     methods: {
       validate(event) {
+         if(event.target.value === '')
+            this.inputed = false
          this.inputed = true
          if(event.target.value.match(this.pattern) === null) {
             this.isValid = false

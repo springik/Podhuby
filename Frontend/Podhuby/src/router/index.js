@@ -25,6 +25,11 @@ const routes = [
         path: '/podcast/:title',
         name: 'PodcastByTitle',
         component: () => import('../components/Podcast.vue')
+    },
+    {
+        path: '/podcast/submit',
+        name: 'SubmitPodcast',
+        component: () => import('../components/PodcastSubmitForm/PodcastForm.vue')
     }
 ]
 

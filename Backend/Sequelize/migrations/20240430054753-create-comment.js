@@ -17,7 +17,9 @@ module.exports = {
         references: {
           model: 'Comments',
           key: 'id'
-        }
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
       podcast_id: {
         type: Sequelize.INTEGER,
@@ -25,7 +27,9 @@ module.exports = {
         references: {
           model: 'Podcasts',
           key: 'id'
-        }
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
       author_id: {
         type: Sequelize.INTEGER,
@@ -33,7 +37,9 @@ module.exports = {
         references: {
           model: 'Users',
           key: 'id'
-        }
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
       content: {
         type: Sequelize.TEXT,

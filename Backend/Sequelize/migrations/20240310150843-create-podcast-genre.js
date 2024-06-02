@@ -9,7 +9,9 @@ module.exports = {
         references: {
           model: 'Podcasts',
           key: 'id'
-        }
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
       genre_id: {
         type: Sequelize.INTEGER,
@@ -17,7 +19,9 @@ module.exports = {
         references: {
           model: 'Genres',
           key: 'id'
-        }
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       }
     });
   },

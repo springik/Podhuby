@@ -13,18 +13,26 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       this.hasMany(models.Comment, {
         foreignKey: 'root_id',
-        as: 'c2'
+        as: 'c2',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       })
       this.belongsTo(models.Comment, {
         foreignKey: 'root_id',
-        as: 'parent'
+        as: 'parent',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       })
       this.belongsTo(models.User, {
         foreignKey: 'author_id',
-        as: 'author'
+        as: 'author',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       })
       this.hasMany(models.Comment_Report, {
-        foreignKey: 'comment_id'
+        foreignKey: 'comment_id',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       })
     }
   }

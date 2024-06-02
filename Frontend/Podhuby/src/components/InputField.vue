@@ -28,7 +28,7 @@ export default {
          else {
             this.isValid = true
          }
-         this.$emit('onValidate')
+         this.$emit('onValidate', this.isValid)
       }
     }
 }

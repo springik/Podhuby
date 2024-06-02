@@ -18,10 +18,10 @@
         </div>
     </fieldset>
     <div>
-        <Youtube ref="youtube" v-if="platform == 'youtube'" />
+        <Youtube @onValidate="validateHandler" ref="youtube" v-if="platform == 'youtube'" />
         <Spotify ref="spotify" v-if="platform == 'spotify'" />
 
-        <button class="submit-btn-min p-2" type="submit">
+        <button v-if="platform != '' || isValid" :disabled="!isValid" class="submit-btn-min p-2" type="submit">
             Submit
         </button>
     </div>
@@ -37,16 +37,18 @@ export default {
     components: { Youtube, Spotify },
     data() {
         return {
-            platform: ''
+            platform: '',
+            isValid: false
         }
     },
     methods: {
-        submit() {
+        async submit() {
+            console.log('submiting...');
             let ref
             if(this.platform == 'youtube')
                 ref = this.$refs.youtube
             if(this.platform == 'spotify')
-                ref = this.$refs.Spotify
+                ref = this.$refs.spotify
 
             // I hate this so much, but it gets rid of the proxy wraping just in case axios acts weird
             const gen = JSON.parse(JSON.stringify(ref.genres))
@@ -60,6 +62,12 @@ export default {
         handleChange(event) {
             console.log(event.target.value);
             this.platform = event.target.value
+        },
+        validateHandler() {
+            if(this.platform == 'youtube')
+                return this.isValid = this.$refs.youtube.isValid
+            if(this.platform == 'spotify')
+                return this.isValid = this.$refs.spotify.isValid
         }
     }
 }

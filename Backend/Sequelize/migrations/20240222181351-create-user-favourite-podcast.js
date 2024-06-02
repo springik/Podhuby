@@ -15,15 +15,19 @@ module.exports = {
         references: {
           model: 'Podcasts',
           key: 'id'
-        }
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
       user_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
           model: 'Users',
-          key: 'id'
-        }
+          key: 'id',
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       }
     });
   },

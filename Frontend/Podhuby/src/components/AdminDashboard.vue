@@ -1,13 +1,19 @@
 <template>
-  
+  <ReportTable />
 </template>
 
 <script>
-export default {
+import ReportTable from './ReportTable.vue'
 
+export default {
+    name: 'AdminDashboard',
+    components: { ReportTable },
+    data() {
+        return {
+            reports: []
+        }
+    }
 }
 </script>
 
-<style>
-
-</style>
+<style src="../styles/styles.css" scoped></style>

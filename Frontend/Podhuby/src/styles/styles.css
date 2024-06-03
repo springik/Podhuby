@@ -1171,6 +1171,13 @@ div.grid-item {
   color: white;
 }
 
+.submit-btn-min-alt {
+  font-family: 'Comfortaa', sans-serif;
+  box-shadow: 4px 4px 0 0 var(--tertiary-color);
+  background-color: black;
+  color: white;
+}
+
 .box-shadow {
   box-shadow: 4px 4px 0 0 var(--accent-color);
 }

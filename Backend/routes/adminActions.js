@@ -61,8 +61,8 @@ adminActionsRouter.get('/get-reports', async (req, res) => {
         let reports = []
         if(lastSeenString === "") {
             reports = await db.Comment_Report.findAll({
-                limit,
-                order: [['createdAt', 'DESC']],
+                //limit,
+                //order: [['createdAt', 'DESC']],
                 include: [{
                     model: db.Comment,
                     as: 'comment',
@@ -82,8 +82,8 @@ adminActionsRouter.get('/get-reports', async (req, res) => {
                         [db.Sequelize.Op.lt]: lastSeen
                     }
                 },
-                limit,
-                order: [['createdAt', 'DESC']],
+                //limit,
+                //order: [['createdAt', 'DESC']],
                 include: [{
                     model: db.Comment,
                     as: 'comment',

@@ -13,7 +13,7 @@ commentsRouter.get('/get-comments/:podcastId', async (req, res) => {
 
     try
     {
-       let comments = []
+      let comments = []
 
         if(lastSeenString === "") {
             comments = await db.Comment.findAndCountAll({

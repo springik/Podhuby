@@ -24,7 +24,7 @@ module.exports = {
       pfp_path: {
         type: Sequelize.STRING,
         allowNull: false,
-        defaultValue: '/default_pfp.jpg'
+        defaultValue: '/Images/pfps/default_pfp.jpg'
       },
       permision_level: {
         type: Sequelize.ENUM('user', 'admin'),

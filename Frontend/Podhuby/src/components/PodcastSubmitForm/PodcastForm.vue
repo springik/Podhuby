@@ -89,7 +89,7 @@ export default {
             catch (err)
             {
                 console.log(err);
-                this.toast.err('Failed to submit podcast')
+                this.toast.error('Failed to submit podcast')
 
             }
         },

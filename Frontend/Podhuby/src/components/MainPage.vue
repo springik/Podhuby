@@ -60,7 +60,6 @@ export default {
                 const url = `/podcasts/all/${count}`
                 const results = await axios.get(url, { header: { withCredentials: true }, baseURL: '/api' })
                 console.log(results);
-                console.log(results);
                 this.podcasts = results.data
                 this.podcastStore.init(this.podcasts)
             }

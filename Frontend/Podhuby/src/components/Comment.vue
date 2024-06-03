@@ -110,7 +110,7 @@ export default {
     data() {
         return {
             showSub: false,
-            pfp: 'http://localhost:8080/pfps' + this.data.author.pfp_path,
+            pfp: 'http://localhost:8080' + this.data.author.pfp_path,
             showReply: false,
             commentReplyContent: '',
             commentEditContent: '',

@@ -36,6 +36,7 @@ const routes = [
         path: '/admin-dashboard',
         name: 'AdminDashboard',
         component: () => import('../components/AdminDashboard.vue'),
+        /*
         beforeEnter: async (to, from, next) => {
             const userStore = useUserStore()
             if(userStore.user?.permision_level != 'admin')
@@ -43,6 +44,7 @@ const routes = [
             else
                 next()
         }
+        */
     }
 ]
 

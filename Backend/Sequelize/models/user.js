@@ -38,7 +38,7 @@ module.exports = (sequelize, DataTypes) => {
     pfp_path: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: '/default_pfp.jpg'
+      defaultValue: '/Images/pfps/default_pfp.jpg'
     },
     permision_level: {
       type: DataTypes.ENUM('user', 'admin'),

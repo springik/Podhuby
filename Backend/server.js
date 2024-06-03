@@ -7,7 +7,8 @@ require('dotenv').config()
 
 const app = express()
 
-app.use('/pfps' , express.static(path.join(__dirname + '/public/Images/pfps')))
+app.use(express.static(path.join(__dirname + '/public')))
+//app.use('/pfps' , express.static(path.join(__dirname + '/public/Images/pfps')))
 app.use(express.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(session({

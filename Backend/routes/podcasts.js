@@ -5,6 +5,8 @@ const axios = require('axios')
 const {Op, QueryTypes, where} = require('sequelize')
 const sessionPreparer = require('../Middleware/sessionPreparer.js');
 const auth = require('../Middleware/auth.js')
+const path = require('path')
+const fs = require('fs').promises
 
 podcastsRouter.use(sessionPreparer)
 
@@ -294,8 +296,15 @@ podcastsRouter.post('/youtube/submit', async (req, res) => {
       youtube_link: "https://youtube.com/" + dataFromYtb.data.items[0].snippet.customUrl,
       spotify_link: null,
       third_link: null,
-      image_path: dataFromYtb.data.items[0].snippet.thumbnails.default.url
+      image_path: `http://${req.hostname}:${req.socket.localPort}/Images/podcast-pfps/${dataFromYtb.data.items[0].snippet.title}.jpg`
     }
+    const pfpUrl = dataFromYtb.data.items[0].snippet.thumbnails.default.url
+    const pfpResponse = await axios.get(pfpUrl, { responseType: 'arraybuffer' })
+    const pfpBuffer = pfpResponse.data
+
+    const image_path = path.join(__dirname, '..', 'public', 'Images', 'podcast-pfps', `${dataFromYtb.data.items[0].snippet.title}.jpg`)
+    await fs.writeFile(image_path, pfpBuffer)
+
     const transaction = await db.sequelize.transaction();
     try
     {

@@ -26,6 +26,7 @@ export default {
         },
         handleValidation(isValid) {
             this.isValid = isValid
+            this.$emit('onValidate')
         }
     },
     computed: {

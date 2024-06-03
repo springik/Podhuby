@@ -1,4 +1,5 @@
 import {createRouter, createWebHistory} from 'vue-router'
+import { useUserStore } from '@/stores/userStore'
 
 const routes = [
     {
@@ -30,6 +31,18 @@ const routes = [
         path: '/podcast/submit',
         name: 'SubmitPodcast',
         component: () => import('../components/PodcastSubmitForm/PodcastForm.vue')
+    },
+    {
+        path: '/admin-dashboard',
+        name: 'AdminDashboard',
+        component: () => import('../components/AdminDashboard.vue'),
+        beforeEnter: async (to, from, next) => {
+            const userStore = useUserStore()
+            if(userStore.user?.permision_level != 'admin')
+                next({ name: 'Main' })
+            else
+                next()
+        }
     }
 ]
 

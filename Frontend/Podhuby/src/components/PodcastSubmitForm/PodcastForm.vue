@@ -19,9 +19,9 @@
     </fieldset>
     <div>
         <Youtube @onValidate="validateHandler" ref="youtube" v-if="platform == 'youtube'" />
-        <Spotify ref="spotify" v-if="platform == 'spotify'" />
+        <Spotify @onValidate="validateHandler" ref="spotify" v-if="platform == 'spotify'" />
 
-        <button v-if="platform != '' || isValid" :disabled="!isValid" class="submit-btn-min p-2" type="submit">
+        <button v-if="platform != '' && isValid" :disabled="!isValid" class="submit-btn-min p-2" type="submit">
             Submit
         </button>
     </div>
@@ -29,12 +29,21 @@
 </template>
 
 <script>
+import axios from 'axios';
 import Spotify from './Spotify.vue';
 import Youtube from './Youtube.vue';
+import { useToast } from 'vue-toastification';
 
 export default {
     name: 'PodcastForm',
     components: { Youtube, Spotify },
+    setup() {
+        const toast = useToast()
+
+        return {
+            toast
+        }
+    },
     data() {
         return {
             platform: '',
@@ -53,11 +62,36 @@ export default {
             // I hate this so much, but it gets rid of the proxy wraping just in case axios acts weird
             const gen = JSON.parse(JSON.stringify(ref.genres))
 
-            const data = {
-                channelHandle: ref.channelHandle,
-                genres: gen
+            let data
+            let url = ``
+            if(this.platform == 'youtube') {
+                url = `/api/podcasts/youtube/submit`
+                data = {
+                    channelHandle: ref.channelHandle,
+                    genres: gen
+                }
+            }
+            else if(this.platform == 'spotify') {
+                url = `/api/podcasts/spotify/submit`
+                data = {
+                    podcastId: ref.channelHandle,
+                    genres: gen
+                }
             }
             console.log(data);
+
+            try
+            {
+                axios.post(url, data, { header: { withCredentials: true } })
+                this.toast.success('Successfully created podcast')
+
+            }
+            catch (err)
+            {
+                console.log(err);
+                this.toast.err('Failed to submit podcast')
+
+            }
         },
         handleChange(event) {
             console.log(event.target.value);
@@ -65,9 +99,9 @@ export default {
         },
         validateHandler() {
             if(this.platform == 'youtube')
-                return this.isValid = this.$refs.youtube.isValid
-            if(this.platform == 'spotify')
-                return this.isValid = this.$refs.spotify.isValid
+                this.isValid = this.$refs.youtube.isValid
+            else if(this.platform == 'spotify')
+                this.isValid = this.$refs.spotify.isValid
         }
     }
 }

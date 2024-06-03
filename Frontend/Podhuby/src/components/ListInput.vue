@@ -1,7 +1,7 @@
 <template>
     <div>
         <InputField ref="itemInput" name="item-input" :label="label" type="text" :placeholder="placeholder" :pattern="regex" :errmsg="errMsg"/>
-        <button class="submit-btn-min p-2" @click="addItem">
+        <button type="button" class="submit-btn-min p-2" @click="addItem">
             Add
         </button>
 

@@ -282,7 +282,7 @@ podcastsRouter.post('/rate/:podcastId', auth, async (req, res) => {
 
 podcastsRouter.post('/youtube/submit', async (req, res) => {
   const channelHandle = req.body.channelHandle
-  const url = `https://www.googleapis.com/youtube/v3/channels?part=snippet&forHandle=${channelHandle}&key=${process.env.YOUTUBE_API_KEY}`
+  const url = `https://www.googleapis.com/youtube/v3/channels?part=snippet&forHandle=${encodeURIComponent(channelHandle)}&key=${process.env.YOUTUBE_API_KEY}`
   const userGenres = req.body.genres.map((g) => g.toLowerCase())
 
   try

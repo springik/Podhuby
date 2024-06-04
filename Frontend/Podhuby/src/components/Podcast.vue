@@ -175,6 +175,10 @@ export default {
             }
         },
         async getCurrRating() {
+
+            if(this.userStore.user == null)
+                return
+            
             try
             {
                 const url = `/podcasts/rate/current`

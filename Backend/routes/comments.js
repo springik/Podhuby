@@ -25,9 +25,12 @@ commentsRouter.get('/get-comments/:podcastId', async (req, res) => {
                 order: [['createdAt', 'DESC']],
                 include: [{
                   model: db.User,
-                  as: 'author'
+                  as: 'author',
+                  where: {
+                    banned: false
+                  }
                 }]
-              })
+            })
         }
         else
         {
@@ -45,7 +48,10 @@ commentsRouter.get('/get-comments/:podcastId', async (req, res) => {
                 order: [['createdAt', 'DESC']],
                 include: [{
                   model: db.User,
-                  as: 'author'
+                  as: 'author',
+                  where: {
+                    banned: false
+                  }
                 }]
               })
         }

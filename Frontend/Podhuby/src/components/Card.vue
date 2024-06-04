@@ -101,6 +101,9 @@ export default {
             }
         },
         async checkState() {
+            if(this.userStore.user == null)
+                return
+            
             console.log('getting state...');
             try
             {

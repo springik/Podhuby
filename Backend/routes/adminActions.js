@@ -106,6 +106,29 @@ adminActionsRouter.get('/get-reports', async (req, res) => {
         res.status(500).json({ message: 'Something went wrong' })
     }
 })
+adminActionsRouter.delete('/report/:reportId', async (req, res) => {
+    const { reportId } = req.params
+    const transaction = await db.sequelize.transaction()
+
+    try
+    {
+        const result = await db.Comment_Report.destroy({
+            where: {
+                id: reportId
+            }
+        }, { transaction })
+
+        console.log(result);
+        await transaction.commit()
+        return res.status(200).json({ message: 'Report deleted successfully' })
+    }
+    catch (err)
+    {
+        await transaction.rollback()
+        console.log(err);
+        return res.status(500).json({ message: 'Something went wrong' })
+    }
+})
 
 
 module.exports = adminActionsRouter

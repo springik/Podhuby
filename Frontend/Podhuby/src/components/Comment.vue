@@ -80,7 +80,7 @@
                 <hr class="my-4 lg:my-6 w-3/4 lg:w-2/3 separator-col">
             </div>
             <div v-if="showSub" class="flex flex-col gap-4">
-                <div v-for="(reply, index) in comments" :key="index" >
+                <div v-for="(reply) in comments" :key="reply.id" >
                     <Comment v-bind="{ data: reply }"  @deleteMe="handleDeleteMe"/>
                 </div>
                 <div v-if="lastGetCount >= 10" class="flex justify-center">
@@ -152,7 +152,7 @@ export default {
             return this.comments[this.comments.length - 1]?.createdAt || ''
         },
         formattedDate() {
-            return moment(new Date(this.data.createdAt)).fromNow()
+            return moment(new Date(this.data.createdAt)).locale('en').fromNow()
         }
     },
     mounted() {

@@ -5,9 +5,14 @@
                     <div class="text-center flex flex-col lg:flex-row justify-center items-center mb-5">
                         <div class="flex flex-row gap-2">
                             <img class="w-10 h-10 lg:w-20 lg:h-20 rounded-full" :src="pfp" alt="profile">
-                            <h3 class="underline decoration-wavy lg:decoration-dotted text-lg pt-3.5 lg:pb-0.5 pb-2.5">
-                                {{ data.author.nickname }}
-                            </h3>
+                            <div class="pt-3">
+                                <h3 class="inline underline decoration-wavy lg:decoration-dotted text-lg lg:pb-0.5 pb-2.5">
+                                    {{ data.author.nickname }}
+                                </h3>
+                                <p class="text-sm text-left text-accentColor">
+                                    {{ formattedDate }}
+                                </p>
+                            </div>
                         </div>
                     </div>
                     <div class="w-11/12 lg:w-1/2">
@@ -97,6 +102,7 @@ import { ref } from 'vue'
 import Modal from './Modal.vue'
 import InputField from './InputField.vue';
 import { useToast } from 'vue-toastification'
+import moment from 'moment';
 
 export default {
     name: 'Comment',
@@ -144,6 +150,9 @@ export default {
     computed: {
         lastSeenString() {
             return this.comments[this.comments.length - 1]?.createdAt || ''
+        },
+        formattedDate() {
+            return moment(new Date(this.data.createdAt)).fromNow()
         }
     },
     mounted() {

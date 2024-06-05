@@ -2,25 +2,37 @@
   <table class="text-white table-auto border-collapse w-1/2 text-center border-spacing-2">
     <thead>
         <tr>
-            <th class="p-4">
-                Reason
+            <th class="p-4 even:bg-accentColor odd:bg-black whitespace-nowrap" @click="toggleColumn('reason')">
+                <span>
+                    Reason
+                </span>
+                <img v-show="sortColumn == SortColumn.Reason" class="w-4 h-4 inline" :class="{ 'rotate-180' : rotateArrow }" src="/arrow-down.svg" alt="arrow">
             </th>
-            <th class="p-4">
-                Report Date
+            <th class="p-4  even:bg-accentColor odd:bg-black whitespace-nowrap" @click="toggleColumn('report date')">
+                <span>
+                    Report Date
+                </span>
+                <img v-show="sortColumn == SortColumn.ReportDate" class="w-4 h-4 inline" :class="{ 'rotate-180' : rotateArrow }" src="/arrow-down-black.png" alt="arrow">
             </th>
-            <th class="p-4">
-                Comment
+            <th class="p-4  even:bg-accentColor odd:bg-black whitespace-nowrap" @click="toggleColumn('comment')">
+                <span>
+                    Comment
+                </span>
+                <img v-show="sortColumn == SortColumn.Comment" class="w-4 h-4 inline" :class="{ 'rotate-180' : rotateArrow }" src="/arrow-down.svg" alt="arrow">
             </th>
-            <th class="p-4">
-                Commenter nick
+            <th class="p-4  even:bg-accentColor odd:bg-black whitespace-nowrap" @click="toggleColumn('commenter nick')">
+                <span>
+                    Commenter nick
+                </span>
+                <img v-show="sortColumn == SortColumn.CommenterNick" class="w-4 h-4 inline" :class="{ 'rotate-180' : rotateArrow }" src="/arrow-down-black.png" alt="arrow">
             </th>
-            <th class="p-4">
-                Interactions
+            <th class="p-4  even:bg-accentColor odd:bg-black">
+                <span>Interactions</span>
             </th>
         </tr>
     </thead>
     <tbody>
-        <tr class="even:bg-accentColor odd:bg-tertiaryColor" v-for="(report, index) in reports" :key="report.id+index">
+        <tr class="even:bg-accentColor odd:bg-tertiaryColor" v-for="(report, index) in reports" :key="report.id">
             <td class="p-4 podcast-p-shadow">
                 {{ report.reason }}
             </td>
@@ -53,6 +65,13 @@ import { useToast } from 'vue-toastification'
 import moment from 'moment'
 import { useUserStore } from '../stores/userStore'
 
+const SortColumn = {
+    Reason: 'reason',
+    ReportDate: 'report date',
+    Comment: 'comment',
+    CommenterNick: 'commenter nick'
+}
+
 export default {
     name: 'ReportTable',
     setup() {
@@ -60,12 +79,15 @@ export default {
         const userStore = useUserStore()
         return {
             toast,
-            userStore
+            userStore,
+            SortColumn
         }
     },
     data() {
         return {
-            reports: []
+            reports: [],
+            sortDirection: 1,
+            sortColumn: undefined
         }
     },
     methods: {
@@ -91,6 +113,10 @@ export default {
 
                 this.toast.error(err.response?.data?.message)
             }
+        },
+        toggleColumn(column) {
+            this.sortColumn = column
+            this.sortDirection = -this.sortDirection
         },
         async deleteReport(reportId) {
             //delete report
@@ -138,6 +164,61 @@ export default {
     computed: {
         formattedDate() {
             return (date) => moment(date).format("MMMM Do YYYY, h:mm:ss a")
+        },
+        rotateArrow() {
+            if(this.sortDirection == 1)
+                return true
+            if(this.sortDirection == -1)
+                return false
+
+            throw new Error('Invalid sort direction')
+        },
+        sortedData() {
+            return this.reports.sort((a, b) => {
+                if(!this.sortColumn)
+                    return this.reports
+
+                let aVal, bVal
+
+                switch (this.sortColumn) {
+                    case SortColumn.Reason:
+                        aVal = a.reason
+                        bVal = b.reason
+                        break;
+                    case SortColumn.ReportDate:
+                        aVal = a.createdAt
+                        bVal = b.createdAt
+                        break;
+                    case SortColumn.Comment:
+                        aVal = a.comment.content
+                        bVal = b.comment.content
+                        break;
+                    case SortColumn.CommenterNick:
+                        aVal = a.comment.author.nickname
+                        bVal = b.comment.author.nickname
+                        break;
+                
+                    default:
+                        throw new Error('Unknown sort column', `${this.sortColumn}`)
+                }
+
+                if(this.sortDirection == 1) {
+                    if(aVal < bVal)
+                        return -1
+                    else if(aVal > bVal)
+                        return 1
+
+                    return 0
+                }
+                else if(this.sortDirection == -1) {
+                    if(aVal > bVal)
+                        return -1
+                    else if(aVal < bVal)
+                        return 1
+
+                    return 0
+                }
+            })
         }
     }
 }

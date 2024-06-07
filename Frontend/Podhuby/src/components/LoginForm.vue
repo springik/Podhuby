@@ -13,15 +13,18 @@
 import InputField from './InputField.vue'
 import axios from 'axios';
 import  { useUserStore } from '../stores/userStore'
+import { useToast } from 'vue-toastification'
 
 export default {
     name: 'LoginForm',
     components: { InputField },
     setup() {
         const userStore = useUserStore()
+        const toast = useToast()
 
         return {
-        userStore
+            userStore,
+            toast
         }
     },
     data() {
@@ -57,8 +60,8 @@ export default {
                             this.userStore.setUser(null)
                             console.log('set to null');
                         }
-                        console.log(result);
                         this.userStore.setUser(result.data)
+                        this.toast.success(res.data.message)
                     }).catch((err) => {
                         console.log(err);
                         this.userStore.setUser(null)
@@ -66,12 +69,13 @@ export default {
                         throw err
                     });
                     
-                    //this.$router.push('/')
+                    this.$router.push('/')
                 }
                 this.results = res.data
             })
             .catch((err) => {
                 console.log(err);
+                this.toast.error(err.response.data.message)
                 this.results.message = err.response.data.message
             })
         },

@@ -1,8 +1,8 @@
 <template>
   <div class="input-container">
     <label :for=name class="input-label">{{ label }}</label>
-    <input :class="{ 'success-state': isValid, 'error-state': !isValid && inputed }" @input="validate" v-model=input class="input-field default-state" :type="type" value="" :name=name :placeholder=placeholder>
-    <span v-show="!isValid && inputed" class="err-msg"> {{ errmsg }}</span>
+    <input :class="{ 'success-state': isValid, 'error-state': !isValid && inputed }" @input="validate" v-model=input class="w-96 input-field default-state text-black" :type="type" value="" :name=name :placeholder=placeholder>
+    <span v-show="!isValid && inputed" class="err-msg w-96 block"> {{ errmsg }} </span>
   </div>
 </template>
 
@@ -19,6 +19,8 @@ export default {
     },
     methods: {
       validate(event) {
+         if(event.target.value === '')
+            this.inputed = false
          this.inputed = true
          if(event.target.value.match(this.pattern) === null) {
             this.isValid = false
@@ -26,12 +28,12 @@ export default {
          else {
             this.isValid = true
          }
-         this.$emit('onValidate')
+         this.$emit('onValidate', this.isValid)
       }
     }
 }
 </script>
-
+<style src="../styles/styles.css" scoped></style>
 <style>
  label.input-label {
     display: block;

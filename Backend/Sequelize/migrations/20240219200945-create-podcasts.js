@@ -13,7 +13,7 @@ module.exports = {
         allowNull: false
       },
       description: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT('medium'),
         allowNull: false
       },
       youtube_link: {

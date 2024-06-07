@@ -2,196 +2,163 @@ const express = require('express')
 const podcastsRouter = express.Router()
 const db = require('../Sequelize/models');
 const axios = require('axios')
-const {Op, where, QueryTypes} = require('sequelize')
-const sessionPreparer = require('../Middleware/sessionPreparer.js')
+const {Op, QueryTypes, where} = require('sequelize')
+const sessionPreparer = require('../Middleware/sessionPreparer.js');
+const auth = require('../Middleware/auth.js')
+const path = require('path')
+const fs = require('fs').promises
 
 podcastsRouter.use(sessionPreparer)
 
-//FIXME: add tags to the returned query
 podcastsRouter.get('/all/:count?', async (req, res) => {
-/*
-    db.Podcast.findAll({
-        attributes: ['id', 'title', 'description', 'youtube_link', 'spotify_link', 'third_link', 'image_path',
-        [db.sequelize.fn('array_agg', db.sequelize.col('Genres.name')), 'genre_names'],
-        //[db.sequelize.fn('array_agg', db.sequelize.col('Tags.name')), 'tag_names']],
-        [db.sequelize.literal('(SELECT array_agg(DISTINCT Tags.name) FROM "Podcast_Tags" INNER JOIN "Tags" ON Podcast_Tags.tag_id = Tags.id WHERE Podcast_Tags.podcast_id = Podcast.id)'), 'tag_names']
-        ],
-        include: [
-          {
-            model: db.Genre,
-            attributes: [],
-            through: { attributes: [] },
-            required: true
-          },
-          {
-            model: db.Tag,
-            attributes: [],
-            through: { attributes: [] },
-            required: false,
-            distinct: true
-          }
-        ],
-        raw: true,
-        group: ['Podcast.id']
-      })
-    .then((result) => {
-        if(result == null) {
-            res.status(500)
-            return
+  try
+  {
+    const podcasts = await db.Podcast.findAll({
+      attributes: [
+        '*',
+        [db.sequelize.fn('array_agg', db.sequelize.fn('distinct', db.sequelize.col('Genres.name'))), 'genres'],
+        [db.sequelize.cast(db.sequelize.fn('avg', db.sequelize.col('Podcast_Ratings.score')), 'decimal(10,2)'), 'average_rating'],
+        [db.sequelize.cast(db.sequelize.fn('count', db.sequelize.fn('distinct', db.sequelize.col('Users.id'))), 'integer'), 'favourite_count']
+      ],
+      include: [
+        {
+          model: db.User,
+          attributes: [],
+          through: { attributes: [ ] },
+          required: false,
+          duplicating: false
+        },
+        {
+          model: db.Genre,
+          attributes: [],
+          through: { attributes: [] },
+          required: true,
+          duplicating: false
+        },
+        {
+          model: db.Podcast_Rating,
+          attributes: [],
+          required: false,
+          duplicating: false
         }
-        let podcasts = result.map((podcast) => {
-            return {
-                id: podcast.id,
-                title: podcast.title,
-                description: podcast.description,
-                links: { youtube: podcast.youtube_link, spotify: podcast.spotify_link, third: podcast.third_link },
-                image_path: podcast.image_path,
-                genre_names: podcast.genre_names,
-                tag_names: podcast.tag_names
-            }
-        })
-
-        res.status(200).json(JSON.stringify(podcasts))
-    }).catch((err) => {
-        console.log(err);
-        res.status(500).json({ message: "Server error" })
-    });
-*/
-
-  const query =
-`SELECT Podcast.*, 
-  array_agg(DISTINCT Genre.name) AS genre_names, 
-  array_agg(DISTINCT Tag.name) AS tag_names
-FROM "Podcasts" AS Podcast
-JOIN "Podcast_Genres" AS genre_join ON Podcast.id = genre_join.podcast_id
-JOIN "Genres" AS Genre ON genre_join.genre_id = Genre.id
-LEFT JOIN "Podcast_Tags" AS tag_join ON Podcast.id = tag_join.podcast_id
-LEFT JOIN "Tags" AS Tag ON tag_join.tag_id = Tag.id
-GROUP BY Podcast.id;
-`
-
-  try {
-    const result = await db.sequelize.query(query, { type: QueryTypes.SELECT })
-
-    if(result == null || result == undefined) {
-      res.status(500).json({ message: 'No podcasts found' })
-      return
-    }
-
-    res.status(200).json(result)
-  }
-  catch(err) {
-    console.log(err);
-    res.status(500).json({ message: 'Server error' })
-  }
-})
-podcastsRouter.get('/by-genre/:genres/:tags?', async (req, res) => {
-  const { genres, tags } = req.params
-
-  const query = `
-SELECT
-  p.id,
-  p.title,
-  p.description,
-  p.youtube_link,
-  array_agg(DISTINCT g.name) AS genre_names,
-  array_agg(DISTINCT t.name) AS tag_names
-FROM "Podcasts" p
-JOIN "Podcast_Genres" pg ON p.id = pg.podcast_id
-JOIN "Genres" g ON pg.genre_id = g.id
-JOIN "Podcast_Tags" pt ON p.id = pt.podcast_id
-JOIN "Tags" t ON pt.tag_id = t.id
-WHERE g.name = ANY (ARRAY[:genres])
-   OR t.name = ANY (ARRAY[:tags])
-GROUP BY p.id;`
-
-  const parameters = {
-    genres: genres ? genres.split('-').map(genre => genre.trim()) : [],
-    tags: tags ? tags.split('-').map(tag => tag.trim()) : [],
-  }
-
-  try
-  {
-    const result = await db.sequelize.query(query, {
-      type: QueryTypes.SELECT,
-      replacements: parameters
+      ],
+      group: [ db.sequelize.col('Podcast.id') ],
+      raw: true
     })
-    if(result === null || result === undefined) {
-      req.status(404).json({ message: 'No podcasts found' })
-      return
-    }
 
-    res.status(200).json(result)
-    return
-  }
-  catch(err)
-  {
-    console.log(err);
-    res.status(500).json(err)
-    return
-  }
+    if(podcasts.length == 0) 
+      return res.status(404).json({ message: 'No podcasts found' })
 
-
-})
-podcastsRouter.get('/:podcastTitle', async (req, res) => {
-  const { podcastTitle } = req.params
-
-  const query = `
-SELECT
-  p.id,
-  p.title,
-  p.description,
-  p.youtube_link,
-  array_agg(DISTINCT g.name) AS genre_names,
-  array_agg(DISTINCT t.name) AS tag_names
-FROM "Podcasts" p
-JOIN "Podcast_Genres" pg ON p.id = pg.podcast_id
-JOIN "Genres" g ON pg.genre_id = g.id
-JOIN "Podcast_Tags" pt ON p.id = pt.podcast_id
-JOIN "Tags" t ON pt.tag_id = t.id
-WHERE p.title = :title
-GROUP BY p.id;`
-
-  const parameters = {
-    title: podcastTitle
-  }
-  console.log(parameters);
-
-  try
-  {
-    const result = await db.sequelize.query(query, {
-      type: QueryTypes.SELECT,
-      replacements: parameters
+    podcasts.forEach(podcast => {
+      if(podcast.average_rating === null)
+        podcast.average_rating = 'No Ratings'
+      else
+        podcast.average_rating = parseFloat(podcast.average_rating)
     })
-    if(result === null || result === undefined) {
-      res.status(404).json({ message: 'Podcast not found' })
-      return
-    }
-
-    res.status(200).json(result)
-    return
+    
+    console.log(podcasts);
+    res.status(200).json(podcasts)
   }
   catch (err)
   {
     console.log(err);
-    res.status(500).json({ message: 'Server error' })
-    return
+    res.status(500).json({ message: 'Something went wrong' })
   }
 })
-podcastsRouter.get('/:podcastId(\\d+)', (req, res) => {
-    
-})
-podcastsRouter.post('/favourite/:podcastId', async (req, res) => {
-  if(req.session.data.user == undefined || req.session.data.user == null) {
-    res.status(401).json({ message: 'User not authorized' })
-    return
-  }
+podcastsRouter.get('/:podcastTitle', async (req, res) => {
+  const { podcastTitle } = req.params
 
+  try
+  {
+    const podcasts = await db.Podcast.findAll({
+      attributes: [
+        '*',
+        [db.sequelize.fn('array_agg', db.sequelize.fn('distinct', db.sequelize.col('Genres.name'))), 'genres'],
+        [db.sequelize.cast(db.sequelize.fn('avg', db.sequelize.col('Podcast_Ratings.score')), 'decimal(10,2)'), 'average_rating'],
+        [db.sequelize.cast(db.sequelize.fn('count', db.sequelize.fn('distinct', db.sequelize.col('Users.id'))), 'integer'), 'favourite_count']
+      ],
+      where: {
+        title: podcastTitle
+      },
+      include: [
+        {
+          model: db.Genre,
+          attributes: [],
+          through: { attributes: [] },
+          required: true,
+          duplicating: false
+        },
+        {
+          model: db.Podcast_Rating,
+          attributes: [],
+          required: false,
+          duplicating: false
+        },
+        {
+          model: db.User,
+          attributes: [],
+          through: { attributes: [ ] },
+          required: false,
+          duplicating: false
+        }
+      ],
+      group: [ db.sequelize.col('Podcast.id') ],
+      raw: true
+    })
+
+    if(podcasts.length == 0) 
+      return res.status(404).json({ message: 'No podcasts found' })
+    podcasts.forEach(podcast => {
+      if(podcast.average_rating === null) {
+        podcast.average_rating = 'No Ratings'
+      }
+      else
+      {
+        podcast.average_rating = parseFloat(podcast.average_rating)
+      }
+    })
+    
+    console.log(podcasts);
+    res.status(200).json(podcasts)
+  }
+  catch (err)
+  {
+    console.log(err);
+    res.status(500).json({ message: 'Something went wrong' })
+  }
+})
+podcastsRouter.get('/favourite/count/:podcastId', async (req, res) => {
+  try
+  {
+    const { podcastId } = req.params
+    const count = await db.User_favourite_Podcast.findAll({
+      attributes: [
+        [db.sequelize.cast(db.sequelize.fn('count', db.sequelize.fn('distinct', db.sequelize.col('User_favourite_Podcast.id'))), 'integer'), 'favourite_count']
+      ],
+      where: {
+        podcast_id: podcastId
+      }
+    })
+    if(count === null)
+      return res.status(404).json({ message: 'Not found' })
+
+    const fav_count = count[0].dataValues.favourite_count
+    return res.status(200).json({ message: 'Successfully got count', count: fav_count })
+  }
+  catch (err)
+  {
+    console.log(err);
+    return res.status(500).json({ message: 'Something went wrong' })
+  }
+  
+})
+podcastsRouter.post('/favourite/:podcastId', auth, async (req, res) => {
+  const { podcastId } = req.params
   try {
     const [user_favourite_podcast, created] = await db.User_favourite_Podcast.findOrCreate({
       where: {
-        podcast_id: req.params.podcastId,
-        user_id: req.session.data.user.id
+        podcast_id: podcastId,
+        user_id: req.session.user.id
       }
     })
 
@@ -211,96 +178,217 @@ podcastsRouter.post('/favourite/:podcastId', async (req, res) => {
     return
   }
 })
+podcastsRouter.get('/favourite/state/:podcastId', auth, async (req, res) => {
+  const { podcastId } = req.params
+
+  try
+  {
+    const user_favourite_podcast = await db.User_favourite_Podcast.findOne({
+      where: {
+        podcast_id: podcastId,
+        user_id: req.session.user.id
+      }
+    })
+
+    return res.status(200).json({ state: user_favourite_podcast !== null })
+  }
+  catch (err)
+  {
+    console.log(err);
+    return res.status(500).json({ message: 'Something went wrong' })
+  }
+})
+podcastsRouter.get('/rate/current', auth, async (req, res) => {
+  const { podcastId } = req.query
+  try
+  {
+    const rating = await db.Podcast_Rating.findOne({
+      where: {
+        podcast_id: podcastId,
+        user_id: req.session.user.id
+      }
+    })
+    if(rating === null)
+      return res.status(200).json({message: 'No ratings'})
+    console.log(rating);
+    return res.status(200).json(rating)
+  }
+  catch (err)
+  {
+    console.log(err);
+    return res.status(500).json({ message: 'Something went wrong' })
+  }
+})
+podcastsRouter.get('/rate/avg', async (req, res) => {
+  const { podcastId } = req.query
+  console.log(podcastId);
+  try
+  {
+    const podcasts = await db.Podcast_Rating.findAll({
+    attributes: [
+      [db.sequelize.cast(db.sequelize.fn('avg', db.sequelize.col('Podcast_Rating.score')), 'decimal(10,2)'), 'average_rating']
+    ],
+    where: {
+      podcast_id: podcastId
+    },
+    raw: true
+    })
+    if(podcasts[0]['average_rating'] === null) {
+      return res.status(200).json({ average_rating: 'No ratings' })
+    }
+    const average_rating = parseFloat(podcasts[0]['average_rating'])
+    return res.status(200).json({ average_rating })
+  }
+  catch (err)
+  {
+    console.log(err);
+    return res.status(500).json({ message: 'Something went wrong' })
+  }
+  
+})
+podcastsRouter.post('/rate/:podcastId', auth, async (req, res) => {
+  const { podcastId } = req.params
+  const { score } = req.body
+
+  try
+  {
+    const rating = await db.Podcast_Rating.findOne({
+      where: {
+        user_id: req.session.user.id,
+        podcast_id: podcastId
+      }
+    })
+    if(rating === null) {
+      await db.Podcast_Rating.create({
+        podcast_id: podcastId,
+        user_id: req.session.user.id,
+        score: score
+      })
+      return res.status(200).json({ message: 'Rating created' })
+    }
+    else if(rating.score == score){
+      await rating.destroy()
+      return res.status(200).json({ message: 'Rating deleted' })
+    }
+    await rating.update({
+      score: score
+    })
+    return res.status(200).json({ message: 'Rating changed' })
+  }
+  catch (err)
+  {
+    console.log(err);
+    return res.status(500).json({ message: 'Something went wrong' })
+  }
+})
 
 podcastsRouter.post('/youtube/submit', async (req, res) => {
   const channelHandle = req.body.channelHandle
-  const url = `https://www.googleapis.com/youtube/v3/channels?part=snippet&forHandle=${channelHandle}&key=${process.env.YOUTUBE_API_KEY}`
-  const userGenres = req.body.genres
-  let podcastData
+  const url = `https://www.googleapis.com/youtube/v3/channels?part=snippet&forHandle=${encodeURIComponent(channelHandle)}&key=${process.env.YOUTUBE_API_KEY}`
+  const userGenres = req.body.genres.map((g) => g.toLowerCase())
 
-  try {
-    const result = await axios.get(url)
-    podcastData = result.data.items.map((podcast) => {
-      return {
-        title: podcast.snippet.title,
-        description: podcast.snippet.description,
-        pfp_path: podcast.snippet.thumbnails.default.url,
-        youtube_link: "https://youtube.com/" + podcast.snippet.customUrl
-      }
-    })
-  }
-  catch(err) {
-    console.log(err);
-    res.status(500).json({ message: "Server error" })
-    return
-  }
-  
-  const genres = await getGenresFromDB(userGenres)
-  if(genres == null) {
-    res.status(500).json({ message: "Server error" })
-    return
-  }
-
-
-  let toBeInserted = []
-  userGenres.forEach((element) => {
-    if(!genres.some((item) => item.dataValues.name === element)) {
-      toBeInserted.push(element)
+  try
+  {
+    const dataFromYtb = await axios.get(url)
+    const podcastData = {
+      title: dataFromYtb.data.items[0].snippet.title,
+      description: dataFromYtb.data.items[0].snippet.description,
+      youtube_link: "https://youtube.com/" + dataFromYtb.data.items[0].snippet.customUrl,
+      spotify_link: null,
+      third_link: null,
+      image_path: `http://${req.hostname}:${req.socket.localPort}/Images/podcast-pfps/${dataFromYtb.data.items[0].snippet.title}.jpg`
     }
-  })
-  const insertGenrePromise = new Promise((resolve, reject) => {
-    toBeInserted.forEach((item) => {
-      db.Genre.create({
-        name: item
-      })
-      .then((result) => {
-        genres.push(result)
-      })
-      .catch((err) => {
-        console.log(err);
-        reject()
-        res.status(500).json({ message: "Server error" })
+    const pfpUrl = dataFromYtb.data.items[0].snippet.thumbnails.default.url
+    const pfpResponse = await axios.get(pfpUrl, { responseType: 'arraybuffer' })
+    const pfpBuffer = pfpResponse.data
+
+    const image_path = path.join(__dirname, '..', 'public', 'Images', 'podcast-pfps', `${dataFromYtb.data.items[0].snippet.title}.jpg`)
+    await fs.writeFile(image_path, pfpBuffer)
+
+    const transaction = await db.sequelize.transaction();
+    try
+    {
+      const podcast = await db.Podcast.create(podcastData, { transaction });
+      const genrePromises = userGenres.map(async (genreName) => {
+        const [genre, created] = await db.Genre.findOrCreate({
+          where: { name: genreName },
+          defaults: { name: genreName },
+          transaction
+        });
+        return genre.id
       });
-    })
-    resolve()
-  })
-
-  insertGenrePromise
-  .then(async () => {
-    let podcast
-    try {
-      podcast = await db.Podcast.create({
-        title: podcastData[0].title,
-        description: podcastData[0].description,
-        image_path: podcastData[0].pfp_path,
-        youtube_link: podcastData[0].youtube_link
-      })
+      const genreIds = await Promise.all(genrePromises)
+      await podcast.save()
+      await podcast.setGenres(genreIds, { transaction })
+      await transaction.commit();
+      res.status(201).json(podcast);
     }
-    catch(err) {
-      console.log(err);
-      res.status(500).json({ message: "Server error" })
-      return
+    catch (error)
+    {
+      await transaction.rollback();
+      console.error(error);
+      res.status(500).json({ message: 'Error creating podcast' });
     }
-
-    console.log("Created podcast", podcast);
-
-    const joinTablePromise = genres.map(async (genre) => {
-      console.log("Current genre", genre);
-      await db.sequelize.query('insert into "Podcast_Genres" values($podcast, $genre)', { bind: { podcast: podcast.dataValues.id, genre: genre.dataValues.id }, type: QueryTypes.INSERT})
-    })
-    await Promise.all(joinTablePromise)
-    res.status(200).json({ message: "Podcast created successfully" })
-    return
-  })
-  .catch((err) => {
-    console.log(err);
-    res.status(500).json({ message: "Server error" })
-    return
-  });
-
-  })
+  }
+  catch (error)
+  {
+    console.error(error);
+    res.status(500).json({ message: 'Error creating podcast' });
+  }
+})
 podcastsRouter.post('/spotify/submit', async (req, res) => {
   const token = await getSpotifyToken()
+  const { podcastId } = req.body
+  const url = `https://api.spotify.com/v1/shows/${podcastId}`
+  const userGenres = req.body.genres.map((g) => g.toLowerCase())
+
+  try
+  {
+    const dataFromSpotify = await axios.get(url, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json'
+      }
+    })
+    console.log(dataFromSpotify);
+    const podcastData = {
+      title: dataFromSpotify.data.name,
+      description: dataFromSpotify.data.description,
+      youtube_link: dataFromSpotify.data.external_urls.youtube || null,
+      spotify_link: dataFromSpotify.data.external_urls.spotify,
+      third_link: null,
+      image_path: dataFromSpotify.data.images[0].url
+    }
+    const transaction = await db.sequelize.transaction();
+    try
+    {
+      const podcast = await db.Podcast.create(podcastData, { transaction });
+      const genrePromises = userGenres.map(async (genreName) => {
+        const [genre, created] = await db.Genre.findOrCreate({
+          where: { name: genreName },
+          defaults: { name: genreName },
+          transaction
+        });
+        return genre.id
+      });
+      const genreIds = await Promise.all(genrePromises)
+      await podcast.save()
+      await podcast.setGenres(genreIds, { transaction })
+      await transaction.commit();
+      res.status(201).json(podcast);
+    }
+    catch (error)
+    {
+      await transaction.rollback();
+      console.error(error);
+      res.status(500).json({ message: 'Error creating podcast' });
+    }
+  }
+  catch (error)
+  {
+    console.error(error);
+    res.status(500).json({ message: 'Error creating podcast' });
+  }
 })
 
 const getGenresFromDB = async function(genresToSearch) {
@@ -317,15 +405,33 @@ const getGenresFromDB = async function(genresToSearch) {
   return results
 }
 const getSpotifyToken = async () => {
-  try {
-    const response = await axios.post('https://accounts.spotify.com/api/token', { 'grant-type': 'client-credentials' }, { headers: { 'Content-Type': 'application/x-www-form-urlencoded', Authorization: 'Basic ' + `${process.env.SPOTIFY_CLIENT_ID}` + ':' + `${process.env.SPOTIFY_CLIENT_SECRET}` } })
-    console.log(response);
-    return response
+  try
+  {
+    const url = `https://accounts.spotify.com/api/token`
+    const auth = Buffer.from(`${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`).toString('base64')
+    const response = await axios.post(url, { grant_type: 'client_credentials' }, { headers: { 'Content-Type': 'application/x-www-form-urlencoded', Authorization: `Basic ${auth}` } })
+    console.log(response.data);
+    return response.data.access_token
   }
   catch(err)
   {
     console.log(err);
-    throw err
   }
+}
+const bulkFindOrCreateGenres = async (model, data) => {
+  const records = await Promise.all(data.map(async (dataEntry) => {
+    const [genre, created] = await model.findOrCreate({
+      where: { name: dataEntry }
+    });
+    if (created) {
+      await genre.save();
+    }
+    return genre;
+  }));
+  return records;
+}
+
+const getUniqueItems =(a, b) => {
+  return a.filter(element => !b.includes(element))
 }
 module.exports = podcastsRouter

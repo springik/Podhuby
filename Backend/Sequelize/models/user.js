@@ -11,7 +11,9 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.belongsToMany(models.Podcast, {through: 'User_favourite_Podcasts'})
+      this.belongsToMany(models.Podcast, { through: 'User_favourite_Podcasts', foreignKey: 'user_id', otherKey: 'podcast_id', onDelete: 'CASCADE', onUpdate: 'CASCADE' })
+      this.hasMany(models.Comment, { foreignKey: 'author_id',onDelete: 'CASCADE', onUpdate: 'CASCADE' })
+      this.hasMany(models.Comment_Report, { foreignKey: 'reporter_id', onDelete: 'CASCADE', onUpdate: 'CASCADE' })
     }
   }
   User.init({
@@ -36,7 +38,17 @@ module.exports = (sequelize, DataTypes) => {
     pfp_path: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: '/default_pfp.jpg'
+      defaultValue: '/Images/pfps/default_pfp.jpg'
+    },
+    permision_level: {
+      type: DataTypes.ENUM('user', 'admin'),
+      allowNull: false,
+      defaultValue: 'user'
+    },
+    banned: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
     }
   }, {
     sequelize,

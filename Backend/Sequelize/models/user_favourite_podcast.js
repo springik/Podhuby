@@ -14,15 +14,18 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   User_favourite_Podcast.init({
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
     podcast_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      primaryKey: true
     },
     user_id: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true
+      allowNull: false
     }
   }, {
     sequelize,

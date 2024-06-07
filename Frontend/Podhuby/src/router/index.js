@@ -1,35 +1,50 @@
 import {createRouter, createWebHistory} from 'vue-router'
-import LoginForm from '../components/LoginForm.vue'
-import RegisterForm from '../components/RegisterForm.vue'
-import MainPage from '../components/MainPage.vue'
-import Podcast from '../components/Podcast.vue'
-import Profile from '../components/Profile.vue'
+import { useUserStore } from '@/stores/userStore'
 
 const routes = [
     {
         path: '/login',
         name: 'Login',
-        component: LoginForm
+        component: () => import('../components/LoginForm.vue'),
     },
     {
         path: '/register',
         name: 'Register',
-        component: RegisterForm
+        component: () => import('../components/RegisterForm.vue'),
     },
     {
         path: '/',
         name: 'Main',
-        component: MainPage
+        component: () => import('../components/MainPage.vue'),
     },
     {
         path: '/profile',
         name: 'Profile',
-        component: Profile
+        component: () => import('../components/Profile.vue'),
     },
     {
         path: '/podcast/:title',
         name: 'PodcastByTitle',
-        component: Podcast
+        component: () => import('../components/Podcast.vue')
+    },
+    {
+        path: '/podcast/submit',
+        name: 'SubmitPodcast',
+        component: () => import('../components/PodcastSubmitForm/PodcastForm.vue')
+    },
+    {
+        path: '/admin-dashboard',
+        name: 'AdminDashboard',
+        component: () => import('../components/AdminDashboard.vue'),
+        /*
+        beforeEnter: async (to, from, next) => {
+            const userStore = useUserStore()
+            if(userStore.user?.permision_level != 'admin')
+                next({ name: 'Main' })
+            else
+                next()
+        }
+        */
     }
 ]
 

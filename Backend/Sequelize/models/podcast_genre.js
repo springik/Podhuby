@@ -27,6 +27,7 @@ module.exports = (sequelize, DataTypes) => {
     modelName: 'Podcast_Genres',
     tableName: 'Podcast_Genres',
     underscored: true,
+    timestamps: false
   });
   return Podcast_Genre;
 };

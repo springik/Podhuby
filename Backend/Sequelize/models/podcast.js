@@ -12,9 +12,13 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.belongsToMany(models.Tag, {through: 'Podcast_Tags'})
-      this.belongsToMany(models.User, {through: 'User_favourite_Podcasts'})
-      this.belongsToMany(models.Genre, {through: 'Podcast_Genres'})
+      this.belongsToMany(models.User, {through: 'User_favourite_Podcasts', foreignKey: 'podcast_id', otherKey: 'user_id', onDelete: 'CASCADE', onUpdate: 'CASCADE'})
+      this.belongsToMany(models.Genre, {through: 'Podcast_Genres', foreignKey: 'podcast_id', otherKey: 'genre_id', onDelete: 'CASCADE', onUpdate: 'CASCADE'})
+      this.hasMany(models.Podcast_Rating, {
+        foreignKey: 'podcast_id',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+      })
     }
   }
   Podcast.init({
@@ -28,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     description: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT('medium'),
       allowNull: false
     },
     youtube_link: {

@@ -8,6 +8,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 import Navbar from "./components/Navbar.vue"
 import { useUserStore } from './stores/userStore'
 
@@ -16,8 +17,25 @@ export default {
   components: { Navbar },
   setup() {
     const userStore = useUserStore()
+
     return {
       userStore
+    }
+  },
+  mounted() {
+    this.getCurrUser()
+  },
+  methods: {
+    getCurrUser() {
+      const url = `/api/users/current-user`
+
+        axios.get(url, { withCredentials: true })
+        .then((result) => {
+          this.userStore.setUser(result.data)
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     }
   }
 }

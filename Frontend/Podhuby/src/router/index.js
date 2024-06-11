@@ -21,6 +21,13 @@ const routes = [
         path: '/profile',
         name: 'Profile',
         component: () => import('../components/Profile.vue'),
+        beforeEnter: async (to, from, next) => {
+            const userStore = useUserStore()
+            if(!userStore.user)
+                next({ name: 'Main' })
+            else
+                next()
+        }
     },
     {
         path: '/podcast/:title',
@@ -36,7 +43,6 @@ const routes = [
         path: '/admin-dashboard',
         name: 'AdminDashboard',
         component: () => import('../components/AdminDashboard.vue'),
-        /*
         beforeEnter: async (to, from, next) => {
             const userStore = useUserStore()
             if(userStore.user?.permision_level != 'admin')
@@ -44,7 +50,6 @@ const routes = [
             else
                 next()
         }
-        */
     }
 ]
 

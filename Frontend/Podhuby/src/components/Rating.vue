@@ -1,6 +1,11 @@
 <template>
   <div>
-    <button v-for="(rating, index) in ratings" :key="index" :class="rating" class="p-1" @click="selectRating(index)" @mouseenter="hoverRating(index)" @mouseleave="leaveRating">
+    <button v-for="(rating, index) in ratings"
+    :key="index" :class="rating"
+    class="p-1" @click="selectRating(index)"
+    @mouseenter="hoverRating(index)"
+    @mouseleave="leaveRating"
+    >
       <img :src="rating" class="w-6 h-6" />
     </button>
   </div>

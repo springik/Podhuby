@@ -31,6 +31,7 @@ export default {
 
         axios.get(url, { withCredentials: true })
         .then((result) => {
+          console.log('requested user');
           this.userStore.setUser(result.data)
         })
         .catch((err) => {

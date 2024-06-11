@@ -302,8 +302,8 @@ podcastsRouter.post('/youtube/submit', async (req, res) => {
     const pfpResponse = await axios.get(pfpUrl, { responseType: 'arraybuffer' })
     const pfpBuffer = pfpResponse.data
 
-    const image_path = path.join(__dirname, '..', 'public', 'Images', 'podcast-pfps', `${dataFromYtb.data.items[0].snippet.title}.jpg`)
-    await fs.writeFile(image_path, pfpBuffer)
+    const imagePath = path.join(__dirname, '..', 'public', 'Images', 'podcast-pfps', `${dataFromYtb.data.items[0].snippet.title}.jpg`)
+    await fs.writeFile(imagePath, pfpBuffer)
 
     const transaction = await db.sequelize.transaction();
     try
@@ -337,13 +337,13 @@ podcastsRouter.post('/youtube/submit', async (req, res) => {
   }
 })
 podcastsRouter.post('/spotify/submit', async (req, res) => {
-  const token = await getSpotifyToken()
   const { podcastId } = req.body
   const url = `https://api.spotify.com/v1/shows/${podcastId}`
   const userGenres = req.body.genres.map((g) => g.toLowerCase())
 
   try
   {
+    const token = await getSpotifyToken()
     const dataFromSpotify = await axios.get(url, {
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -357,8 +357,13 @@ podcastsRouter.post('/spotify/submit', async (req, res) => {
       youtube_link: dataFromSpotify.data.external_urls.youtube || null,
       spotify_link: dataFromSpotify.data.external_urls.spotify,
       third_link: null,
-      image_path: dataFromSpotify.data.images[0].url
+      image_path: `http://${req.hostname}:${req.socket.localPort}/Images/podcast-pfps/${dataFromSpotify.data.name}.jpg`
     }
+    const imageUrl = dataFromSpotify.data.images[0].url
+    const imagePath = path.join(__dirname, '..', 'public', 'Images', 'podcast-pfps', `${dataFromSpotify.data.name}.jpg`)
+    const response = await axios.get(imageUrl, { responseType: 'arraybuffer' })
+    const pfpBuffer = response.data
+    await fs.writeFile(imagePath, pfpBuffer)
     const transaction = await db.sequelize.transaction();
     try
     {
@@ -391,19 +396,6 @@ podcastsRouter.post('/spotify/submit', async (req, res) => {
   }
 })
 
-const getGenresFromDB = async function(genresToSearch) {
-
-  const results = await db.Genre.findAll({
-    attributes: ["id", "name"],
-    where: {
-      name: {
-        [Op.in]: genresToSearch
-      }
-    }
-  })
-
-  return results
-}
 const getSpotifyToken = async () => {
   try
   {
@@ -416,22 +408,7 @@ const getSpotifyToken = async () => {
   catch(err)
   {
     console.log(err);
+    throw err
   }
-}
-const bulkFindOrCreateGenres = async (model, data) => {
-  const records = await Promise.all(data.map(async (dataEntry) => {
-    const [genre, created] = await model.findOrCreate({
-      where: { name: dataEntry }
-    });
-    if (created) {
-      await genre.save();
-    }
-    return genre;
-  }));
-  return records;
-}
-
-const getUniqueItems =(a, b) => {
-  return a.filter(element => !b.includes(element))
 }
 module.exports = podcastsRouter

@@ -32,6 +32,7 @@ const adminActionsRouter = require('./routes/adminActions.js')
 const genreRouter = require('./routes/genres.js')
 const authMiddleware = require('./Middleware/auth.js')
 
+app.use('/users', cors(corsOptions), userDataRouter)
 app.use('/users', cors(corsOptions), authRouter)
 app.use('/podcasts', cors(corsOptions), podcastsRouter, commentsRouter)
 app.use('/admin', cors(corsOptions), authMiddleware, adminActionsRouter)

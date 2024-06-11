@@ -5,6 +5,7 @@ const sessionPreparer = require('../Middleware/sessionPreparer.js')
 const db = require('../Sequelize/models')
 const { body, validationResult } = require('express-validator')
 const auth = require('../Middleware/auth.js')
+const { hashPassword } = require('../utilities/utils.js')
 authRouter.use(sessionPreparer)
 
 authRouter.post('/login',body('userEmail').isEmail().normalizeEmail(), body('userPassword').isLength({ min: 6, max: 22 }) , (req, res) => {
@@ -74,10 +75,7 @@ authRouter.post('/register', body('userEmail').isEmail().normalizeEmail(), body(
         res.status(500).json({ message: 'Server error' })
     }
 })
-const hashPassword = async (password) => {
-    const hashedPassword = await bcrypt.hash(password, 8)
-    return hashedPassword
-}
+
 authRouter.post('/logout', auth, async (req, res) => {
     req.session.destroy((err) => {
         if(err) {

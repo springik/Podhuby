@@ -249,6 +249,7 @@ export default {
             catch (err)
             {
                 console.log(err);
+                this.toast.error('Failed to load more comments')
             }
         },
         async reply() {

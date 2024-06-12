@@ -71,6 +71,7 @@ export default {
         console.log(results);
         this.deleteUserFromStore()
         this.toast.success(results.data.message)
+        this.$router.push({ name: 'Main' })
       }
       catch (err)
       {
